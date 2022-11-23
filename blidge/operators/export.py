@@ -2,6 +2,8 @@ import bpy
 from bpy.types import (Operator)
 from bpy.app.handlers import persistent
 
+from ..utils.scene_parser import SceneParser
+
 class BLIDGE_OT_ExportGLTF(Operator):
     bl_idname = 'blidge.export_gltf'
     bl_label = 'Accept'
@@ -41,3 +43,18 @@ class BLIDGE_OT_ExportGLTF(Operator):
         scene = bpy.context.scene
         if scene.blidge.export_gltf_export_on_save:
             cls.export()
+
+class BLIDGE_OT_ExportSceneData(Operator):
+    bl_idname = 'blidge.export_scene'
+    bl_label = 'Accept'
+    
+    def execute(self, context):
+        scene = bpy.context.scene
+        data = SceneParser().get_scene()
+        path = scene.blidge.export_scene_data_path
+
+        with open( path, mode='wt', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False)
+            
+        return {'FINISHED'}
+

@@ -2,7 +2,7 @@ import bpy;
 from bpy.app.handlers import persistent
 
 from .managers.fcurve import FCurveManager
-from .operators.export_gltf import BLIDGE_OT_ExportGLTF
+from .operators.export import BLIDGE_OT_ExportGLTF
 
 @persistent
 def on_load(scene = None, context = None):

@@ -9,12 +9,28 @@ bl_info = {
     "category" : "Testing"
 }
 
-from . import auto_load
+if "bpy" in locals():
+    import imp
+    imp.reload(BLIDGE_OT_ExportGLTF)
+    imp.reload(BLIDGE_OT_ExportSceneData)
+    imp.reload(BLIDGE_PT_MainControls)
+else:
+    from .operators.export import (BLIDGE_OT_ExportGLTF, BLIDGE_OT_ExportSceneData)
+    from .panels.blidge import (BLIDGE_PT_MainControls)
 
-auto_load.init()
+
+import bpy
+
+classes = [
+    BLIDGE_OT_ExportGLTF,
+    BLIDGE_OT_ExportSceneData,
+    BLIDGE_PT_MainControls
+]
 
 def register():
-    auto_load.register()
+    for c in classes:
+        bpy.utils.register_class(c)
 
 def unregister():
-    auto_load.unregister()
+    for c in classes:
+        bpy.utils.unregister_class(c)

@@ -6,8 +6,7 @@ from ..operators.sync import (BLIDGE_OT_Sync)
 
 # exports
 
-from ..operators.export_gltf import (BLIDGE_OT_ExportGLTF)
-from ..operators.export_scene_data import (BLIDGE_OT_ExportSceneData)
+from ..operators.export import (BLIDGE_OT_ExportGLTF,BLIDGE_OT_ExportSceneData)
 
 class BLIDGE_PT_MainControls(bpy.types.Panel):
 
