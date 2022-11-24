@@ -1,7 +1,7 @@
 from ast import Str
 import bpy
 
-from ..managers.fcurve import FCurveManager
+from .fcurve_manager import get_fcurve_id
 
 class SceneParser:
 
@@ -65,7 +65,7 @@ class SceneParser:
             "keyframes": None
         }
 
-        fcurveId = FCurveManager.getFCurveId(fcurve, True)
+        fcurveId = get_fcurve_id(fcurve, True)
 
         invert = fcurveId.find( 'location_y' ) > -1 or fcurveId.find( 'rotation_euler_y' ) > -1
         parsed_fcurve['keyframes'] = self.parse_keyframe_list(fcurve.keyframe_points, invert)
@@ -84,7 +84,7 @@ class SceneParser:
         fcurve_accessor_list = []
         
         for fcurve in action.fcurves:
-            fcurveId = FCurveManager.getFCurveId(fcurve, True)
+            fcurveId = get_fcurve_id(fcurve, True)
             for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
                 if( fcurve_prop.name == fcurveId and not fcurve_prop.accessor in fcurve_accessor_list):
                     fcurve_accessor_list.append(fcurve_prop.accessor)

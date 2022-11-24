@@ -1,25 +1,10 @@
-import os
 import bpy
 
-def get_gltf_presets(scene, context):
-    items = []
-
-    preset_path_list = bpy.utils.preset_paths('operator/export_scene.gltf/')
-
-    if(len(preset_path_list) <= 0):
-        return []
-    
-    preset_path = preset_path_list[0]
-    file_list = os.listdir(preset_path)
-    
-    for file in file_list:
-        if file.find( '.py' ) > -1:
-            items.append(( os.path.join(preset_path, file), file.replace('.py', ''), file))
-
-    return items
+from ..utils.gltf import get_gltf_presets
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
+	id: bpy.props.StringProperty(default='')
 	name: bpy.props.StringProperty(default='')
 	axis: bpy.props.EnumProperty(
 		name="axis",
@@ -40,7 +25,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_gltf_preset_list: bpy.props.EnumProperty(
         name="preset",
         description="gltf export preset",
-        items=get_gltf_presets,
+        items=get_gltf_presets(),
     )
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
@@ -58,11 +43,9 @@ class BLidgeProperties():
             bpy.utils.register_class(c)
 
         bpy.types.Scene.blidge = bpy.props.PointerProperty(type=BLidgeControlsProperty)
-        bpy.types.FCurve.blidge_accessor = bpy.props.PointerProperty(type=BLidgeFCurveProperty)
 
     def unregister():
         for c in classes:
             bpy.utils.unregister_class(c)
 
         del bpy.types.Scene.blidge
-        del bpy.types.FCurve.blidge_accessor

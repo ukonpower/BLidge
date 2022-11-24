@@ -2,11 +2,11 @@ import bpy
 
 # sync
 
-from ..operators.sync import (BLIDGE_OT_Sync)
+from ..operators.ot_sync import (BLIDGE_OT_Sync)
 
 # exports
 
-from ..operators.export import (BLIDGE_OT_ExportGLTF,BLIDGE_OT_ExportSceneData)
+from ..operators.ot_export import (BLIDGE_OT_ExportGLTF,BLIDGE_OT_ExportSceneData)
 
 class BLIDGE_PT_Controls(bpy.types.Panel):
 
