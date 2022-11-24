@@ -10,6 +10,7 @@ def on_load(scene = None, context = None):
 
 @persistent
 def on_save(scene = None, context = None):
+	print('OT_Export')
 	BLIDGE_OT_ExportGLTF.on_save()
 
 @persistent

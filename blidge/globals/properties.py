@@ -1,8 +1,6 @@
 import os
 import bpy
 
-from .managers.fcurve import BLidgeFCurveProperty
-
 def get_gltf_presets(scene, context):
     items = []
 
@@ -20,7 +18,23 @@ def get_gltf_presets(scene, context):
 
     return items
 
-class BLidgeProperties(bpy.types.PropertyGroup):
+class BLidgeFCurveProperty(bpy.types.PropertyGroup):
+	index: bpy.props.IntProperty(default=0)
+	name: bpy.props.StringProperty(default='')
+	axis: bpy.props.EnumProperty(
+		name="axis",
+        description="value axis",
+        items=[
+			( "x", "X", "" ),
+			( "y", "Y", "" ),
+			( "z", "Z", "" ),
+			( "w", "W", "" ),
+			( "none", "None", "" )
+		],
+		default='none'
+	)
+
+class BLidgeControlsProperty(bpy.types.PropertyGroup):
     sync_port: bpy.props.IntProperty(name="port", default=3100)
     export_gltf_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH' )
     export_gltf_preset_list: bpy.props.EnumProperty(
@@ -32,8 +46,23 @@ class BLidgeProperties(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
 
+classes = [
+    BLidgeFCurveProperty,
+    BLidgeControlsProperty,
+]
+
+
+class BLidgeProperties():
     def register():
-        bpy.types.Scene.blidge = bpy.props.PointerProperty(type=BLidgeProperties)
+        for c in classes:
+            bpy.utils.register_class(c)
+
+        bpy.types.Scene.blidge = bpy.props.PointerProperty(type=BLidgeControlsProperty)
+        bpy.types.FCurve.blidge_accessor = bpy.props.PointerProperty(type=BLidgeFCurveProperty)
 
     def unregister():
+        for c in classes:
+            bpy.utils.unregister_class(c)
+
         del bpy.types.Scene.blidge
+        del bpy.types.FCurve.blidge_accessor

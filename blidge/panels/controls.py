@@ -8,12 +8,12 @@ from ..operators.sync import (BLIDGE_OT_Sync)
 
 from ..operators.export import (BLIDGE_OT_ExportGLTF,BLIDGE_OT_ExportSceneData)
 
-class BLIDGE_PT_MainControls(bpy.types.Panel):
+class BLIDGE_PT_Controls(bpy.types.Panel):
 
     bl_label = 'BLidge'
+    bl_category = 'BLidge'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'BLidge'
 
     def draw(self, context):
         scene = context.scene

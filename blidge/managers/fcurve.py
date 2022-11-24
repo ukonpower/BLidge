@@ -1,22 +1,6 @@
 import bpy;
 import re;
 
-class BLidgeFCurveProperty(bpy.types.PropertyGroup):
-	index: bpy.props.IntProperty(default=0)
-	accessor: bpy.props.StringProperty(default='')
-	axis: bpy.props.EnumProperty(
-		name="axis",
-        description="value axis",
-        items=[
-			( "x", "X", "" ),
-			( "y", "Y", "" ),
-			( "z", "Z", "" ),
-			( "w", "W", "" ),
-			( "none", "None", "" )
-		],
-		default='none'
-	)
-
 class FCurveManager:
 	@classmethod
 	def getFCurveId(cls, fcurve: bpy.types.FCurve, axis: bool = False):

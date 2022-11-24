@@ -1,6 +1,8 @@
 import bpy
-import sys
 from bpy.types import AddonPreferences
+import sys
+import subprocess
+
 from pathlib import Path
 
 class BLIDGE_OT_install_dependencies(bpy.types.Operator):
@@ -11,7 +13,6 @@ class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 
 	def execute(self, context):
 
-		import subprocess
 
 		py_exec = str(sys.executable)
 		module = 'websockets'
@@ -24,7 +25,7 @@ class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 		return {'FINISHED'}
 	
 class BLIDGE_PT_install_dependencies(AddonPreferences):
-	bl_idname = __package__
+	bl_idname = 'blidge'
 
 	def draw(self, context):
 		layout = self.layout

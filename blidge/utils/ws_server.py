@@ -90,7 +90,6 @@ class WS:
             "data": data
         })
 
-        # print( messageStr)
         websockets.broadcast(self.sockets, messageStr)
 
         
