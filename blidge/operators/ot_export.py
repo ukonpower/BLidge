@@ -1,10 +1,40 @@
 import bpy
+from bpy_extras.io_utils import ExportHelper
 from bpy.types import (Operator)
+from bpy.props import (StringProperty, BoolProperty)
 from bpy.app.handlers import persistent
 
 from ..utils.scene_parser import SceneParser
 
-class BLIDGE_OT_ExportGLTF(Operator):
+class THREECONNECTOR_OT_GLTFExportPath(Operator, ExportHelper):
+    bl_idname = 'object.threeconnector_export_glb_path'
+    bl_label = 'Accept'
+    bl_options = {'UNDO'}
+ 
+    filename_ext = '.glb'
+
+    filter_glob: StringProperty(
+        default='*.glb',
+        options={'HIDDEN'}
+    )
+
+    path_relative: BoolProperty(
+        name='Relative Path',
+        description='',
+        default=True
+    )
+ 
+    def execute(self, context):
+        scene = bpy.context.scene
+        path = self.filepath
+
+        if( self.path_relative ):
+            path = bpy.path.relpath(path)
+        
+        scene.blidge.export_gltf_path = path
+        return {'FINISHED'}
+
+class BLIDGE_OT_GLTFExport(Operator):
     bl_idname = 'blidge.export_gltf'
     bl_label = 'Accept'
     
@@ -44,7 +74,7 @@ class BLIDGE_OT_ExportGLTF(Operator):
         if scene.blidge.export_gltf_export_on_save:
             cls.export()
 
-class BLIDGE_OT_ExportSceneData(Operator):
+class BLIDGE_OT_SceneExport(Operator):
     bl_idname = 'blidge.export_scene'
     bl_label = 'Accept'
     

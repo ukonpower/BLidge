@@ -29,7 +29,10 @@ class SceneParser:
 
         axisIndex = axisList.find(axis)
 
-        return 'xyzw'[axisIndex]
+        if( axisIndex > -1 ):
+            return 'xyzw'[axisIndex]
+
+        return axis
 
     def parse_keyframe(self, keyframe: bpy.types.Keyframe):
         parsed_keyframe = {
@@ -60,7 +63,6 @@ class SceneParser:
     def parse_fcurve(self, fcurve: bpy.types.FCurve ):
 
         parsed_fcurve = {
-            "name": "none",
             "axis": "scaler",
             "keyframes": None
         }
@@ -72,8 +74,8 @@ class SceneParser:
 
         for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
             if( fcurve_prop.id == fcurveId):
-                parsed_fcurve["name"] = fcurve_prop.accessor
                 parsed_fcurve["axis"] = self.get_fcurve_axis( fcurveId, fcurve_prop.axis )
+                break
                 
         return parsed_fcurve
     
@@ -126,12 +128,14 @@ class SceneParser:
         object_animation_data = object.animation_data
             
         if object_animation_data:
-            object_data["actions"].append( object_animation_data.action.name_full )
+                if object_animation_data.action != None:
+                    object_data["actions"].append( object_animation_data.action.name_full )
 
         for matSlot in object.material_slots:
             mat_animation_data = matSlot.material.node_tree.animation_data
-            # if object_animation_data:
-                # object_data["actions"].append( mat_animation_data.action.name_full )
+            if mat_animation_data:
+                object_data["actions"].append( mat_animation_data.action.name_full )
+
 
         for child in object.children:
             object_data["children"].append(self.get_object_graph(child, object.name))

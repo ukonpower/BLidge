@@ -6,7 +6,7 @@ from ..operators.ot_sync import (BLIDGE_OT_Sync)
 
 # exports
 
-from ..operators.ot_export import (BLIDGE_OT_ExportGLTF,BLIDGE_OT_ExportSceneData)
+from ..operators.ot_export import (BLIDGE_OT_GLTFExport,BLIDGE_OT_SceneExport)
 
 class BLIDGE_PT_Controls(bpy.types.Panel):
 
@@ -37,9 +37,9 @@ class BLIDGE_PT_Controls(bpy.types.Panel):
         layout.prop(scene.blidge,'export_gltf_preset_list', text='preset')
 
         layout.prop( scene.blidge, 'export_gltf_path' )
-        layout.operator(BLIDGE_OT_ExportGLTF.bl_idname, text='Export glTF (glb)' )
+        layout.operator(BLIDGE_OT_GLTFExport.bl_idname, text='Export glTF (glb)' )
 
         # sceneData
         layout.label(text='Scene data')
         layout.prop( scene.blidge, 'export_scene_data_path' )
-        layout.operator(BLIDGE_OT_ExportSceneData.bl_idname, text='Export scene data' )
+        layout.operator(BLIDGE_OT_SceneExport.bl_idname, text='Export scene data' )
