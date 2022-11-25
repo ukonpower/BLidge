@@ -20,10 +20,10 @@ else:
     from .globals.preference import (BLIDGE_OT_install_dependencies, BLIDGE_PT_install_dependencies)
     from .operators.ot_export import (BLIDGE_OT_ExportGLTF, BLIDGE_OT_ExportSceneData)
     from .operators.ot_sync import (BLIDGE_OT_Sync)
-    from .operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate,BLIDGE_OT_FCurveAccessorRename)
+    from .operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename)
     from .panels.pt_view_controls import (BLIDGE_PT_Controls)
     from .panels.pt_prop_object import (BLIDGE_PT_ObjectPropertie)
-    from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurve)
+    from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurveAccessor)
 
 import bpy
 
@@ -37,7 +37,7 @@ classes = [
     BLIDGE_PT_Controls,
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,
-    BLIDGE_PT_FCurve
+    BLIDGE_PT_FCurveAccessor,
 ]
 
 def register():
