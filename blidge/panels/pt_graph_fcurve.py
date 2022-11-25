@@ -1,7 +1,7 @@
 import bpy
 
 from ..utils.fcurve_manager import get_fcurve_id
-from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename)
+from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename, BLIDGE_OT_FCurveAccessorClear)
 
 class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
 
@@ -28,13 +28,16 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                     break
             
             if curve_data:
-                box.prop(curve_data, 'id', text='name')
+                box.prop(curve_data, 'accessor', text='name')
                 box.prop(curve_data, 'axis', text='axis', icon='EMPTY_ARROWS')
+                op_delete = box.operator( BLIDGE_OT_FCurveAccessorClear.bl_idname, icon='CANCEL' )
+                op_delete.fcurve_id = fcurve_id
+
             else:
                 op_create = box.operator( BLIDGE_OT_FCurveAccessorCreate.bl_idname, icon='PLUS' )
-                op_create.curve_id = fcurve_id
-                op_create.curve_name = fcurve_id
-                op_create.curve_axis = 'x'
+                op_create.fcurve_id = fcurve_id
+                op_create.fcurve_accessor = get_fcurve_id(fcurve)
+                op_create.fcurve_axis = 'xyzw'[fcurve.array_index]
 
         if( len(bpy.context.selected_editable_fcurves) > 1 ):
             layout.label(text="Rename")

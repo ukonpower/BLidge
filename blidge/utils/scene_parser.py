@@ -71,7 +71,7 @@ class SceneParser:
         parsed_fcurve['keyframes'] = self.parse_keyframe_list(fcurve.keyframe_points, invert)
 
         for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-            if( fcurve_prop.name == fcurveId):
+            if( fcurve_prop.id == fcurveId):
                 parsed_fcurve["name"] = fcurve_prop.accessor
                 parsed_fcurve["axis"] = self.get_fcurve_axis( fcurveId, fcurve_prop.axis )
                 
@@ -81,17 +81,20 @@ class SceneParser:
 
     def parse_action(self, action: bpy.types.Action ):
 
-        fcurve_accessor_list = []
+        parsed_fcurve_list = dict()
         
         for fcurve in action.fcurves:
-            fcurveId = get_fcurve_id(fcurve, True)
             for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-                if( fcurve_prop.name == fcurveId and not fcurve_prop.accessor in fcurve_accessor_list):
-                    fcurve_accessor_list.append(fcurve_prop.accessor)
+                fcurveId = get_fcurve_id(fcurve, True)
+                if( fcurve_prop.id == fcurveId ):
+                    if( fcurve_prop.accessor in parsed_fcurve_list ):
+                        parsed_fcurve_list[fcurve_prop.accessor].append(self.parse_fcurve(fcurve))
+                    else:
+                        parsed_fcurve_list[fcurve_prop.accessor] = [self.parse_fcurve(fcurve)]
                 
         return {
             "name": action.name_full,
-            "fcurves": fcurve_accessor_list
+            "fcurve_groups": parsed_fcurve_list
         }
 
     #  SceneGraph ----------------------
