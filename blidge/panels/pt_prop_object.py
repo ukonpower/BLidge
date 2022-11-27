@@ -10,5 +10,5 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=context.object.name)
+        layout.prop( context.object.blidge, 'type', text='Type' )
 

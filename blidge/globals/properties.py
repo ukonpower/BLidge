@@ -31,11 +31,24 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
 
+class BLidgeObjectProperty(bpy.types.PropertyGroup):
+    type: bpy.props.EnumProperty(
+		name="type",
+        description="object type",
+        items=[
+			( "empty", "Empty", "" ),
+			( "cube", "Cube", "" ),
+			( "sphere", "Sphere", "" ),
+			( "mesh", "Mesh", "" ),
+		],
+		default='empty'
+	)
+
 classes = [
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
+    BLidgeObjectProperty,
 ]
-
 
 class BLidgeProperties():
     def register():
@@ -43,9 +56,11 @@ class BLidgeProperties():
             bpy.utils.register_class(c)
 
         bpy.types.Scene.blidge = bpy.props.PointerProperty(type=BLidgeControlsProperty)
+        bpy.types.Object.blidge = bpy.props.PointerProperty(type=BLidgeObjectProperty)
 
     def unregister():
         for c in classes:
             bpy.utils.unregister_class(c)
 
         del bpy.types.Scene.blidge
+        del bpy.types.Object.blidge
