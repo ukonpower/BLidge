@@ -1,4 +1,5 @@
 from ast import Str
+import math
 import bpy
 
 from .fcurve_manager import get_fcurve_id
@@ -126,6 +127,8 @@ class SceneParser:
             "type": object.blidge.type,
         }
 
+        # actions
+
         object_animation_data = object.animation_data
             
         if object_animation_data:
@@ -140,6 +143,33 @@ class SceneParser:
 
         for child in object.children:
             object_data["children"].append(self.get_object_graph(child, object.name))
+
+        # camera
+
+        if  object.blidge.type == 'camera' and object.name in bpy.data.cameras:
+            camera = bpy.data.cameras[object.name]
+
+            render = bpy.context.scene.render
+            width = render.pixel_aspect_x * render.resolution_x
+            height = render.pixel_aspect_y * render.resolution_y
+            aspect_ratio = width / height
+            fov_radian = 1.0
+
+            if aspect_ratio >= 1.0:
+                if camera.sensor_fit != 'VERTICAL':
+                    fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
+                else:
+                    fov_radian = camera.angle
+            else:
+                if camera.sensor_fit != 'HORIZONTAL':
+                    fov_radian = camera.angle
+                else:
+                    fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
+
+                
+            object_data['camera'] = {
+                "fov": fov_radian / math.pi * 180
+            }
 
         return object_data
 
