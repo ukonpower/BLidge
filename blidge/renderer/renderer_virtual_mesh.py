@@ -4,59 +4,65 @@ import gpu
 from math import *
 from mathutils import *
 from gpu_extras.batch import batch_for_shader
-from gpu_extras.presets import draw_texture_2d, draw_circle_2d
-from bpy_extras.view3d_utils import location_3d_to_region_2d, region_2d_to_origin_3d, region_2d_to_vector_3d
 
+from .geometries.geometry_cube import GeometryCube
+from .geometries.geometry_sphere import GeometrySphere
+
+from .shaders.shader_virtual_mesh import (fragment_shader, vertex_shader)
 class BLidgeVirtualMeshRenderer:
 
 	handler = None
+	shader = None
+
+	geo_cube = None
+	geo_sphere = None
+
+	def __init__(self) -> None:
+		self.shader = gpu.types.GPUShader(vertex_shader, fragment_shader)
+		self.geo_cube = GeometryCube( 1, 1, 1 )
+		self.geo_sphere = GeometrySphere()
 
 	def start(self, context):
-		self.handler= bpy.types.SpaceView3D.draw_handler_add(self.draw, (context, ), 'WINDOW', 'POST_PIXEL')
+		self.handler= bpy.types.SpaceView3D.draw_handler_add(self.draw, (context, ), 'WINDOW', 'POST_VIEW')
 
 	def end(self, context):
 		bpy.types.SpaceView3D.draw_handler_remove(self.handler, 'WINDOW')
 
 	def draw(self, context):
-		print( 'draw' )
 
-		coords = [
-			[ -1.0, 0.0, 0.0 ],
-			[ 1.0, 0.0, 0.0 ],
-			[ 0.0, 0.0, 1.0 ],
-		]
+		self.shader.bind()
 
-		indices = [
-			[0, 1, 2]
-		]
+		gpu.state.depth_test_set('LESS_EQUAL')
+		gpu.state.depth_mask_set(True)
 
-		shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
-		batch_faces = batch_for_shader(shader, 'TRIS', {"pos": coords}, indices=indices)
-
-		shader.bind()
-		shader.uniform_float("color", (1.0, 0.0, 0.0, 1.0))
-
-		viewMatrix = gpu.matrix.get_model_view_matrix()
-		projectionMatrix = gpu.matrix.get_projection_matrix()
+		view_matrix = gpu.matrix.get_model_view_matrix()
+		projection_matrix = gpu.matrix.get_projection_matrix()
+		
+		self.shader.uniform_float("projectionMatrix", projection_matrix)
 
 		for obj in bpy.data.objects:
 
-			view_matrix = obj.matrix_world.copy()
+			model_matrix: Matrix = obj.matrix_world.copy()
+			model_view_matrix: Matrix = view_matrix @ model_matrix
 
-			print( viewMatrix)
-			
-			gpu.matrix.reset()
-			gpu.matrix.load_matrix(viewMatrix @ view_matrix)
-			gpu.matrix.load_projection_matrix(projectionMatrix)
+			normal_matrix = model_view_matrix.copy()
+			normal_matrix.invert()
+			normal_matrix.transpose()
 
-			gpu.state.depth_test_set('LESS_EQUAL')
-			gpu.state.depth_mask_set(True)
+			self.shader.uniform_float( "modelViewMatrix", model_view_matrix )
+			self.shader.uniform_float( "normalMatrix", normal_matrix.to_3x3() )
 
-			batch_faces.draw(shader)
+			geo = None
+
+			if obj.blidge.type == 'cube':
+				geo = self.geo_cube
+			elif obj.blidge.type == 'sphere': 
+				geo = self.geo_sphere
+
+			if geo != None:
+				batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "normal": geo.normal, "uv": geo.uv }, indices=geo.index)
+				batch.draw(self.shader)
 
 		gpu.state.depth_test_set('NONE')
 		gpu.state.blend_set('NONE')
-		gpu.matrix.reset()
-		gpu.matrix.load_matrix(viewMatrix)
-		gpu.matrix.load_projection_matrix(projectionMatrix)		
 		
