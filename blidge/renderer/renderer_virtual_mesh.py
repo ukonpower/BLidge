@@ -9,6 +9,7 @@ from .geometries.geometry_cube import GeometryCube
 from .geometries.geometry_sphere import GeometrySphere
 
 from .shaders.shader_virtual_mesh import (fragment_shader, vertex_shader)
+
 class BLidgeVirtualMeshRenderer:
 
 	handler = None
@@ -45,12 +46,7 @@ class BLidgeVirtualMeshRenderer:
 			model_matrix: Matrix = obj.matrix_world.copy()
 			model_view_matrix: Matrix = view_matrix @ model_matrix
 
-			normal_matrix = model_view_matrix.copy()
-			normal_matrix.invert()
-			normal_matrix.transpose()
-
 			self.shader.uniform_float( "modelViewMatrix", model_view_matrix )
-			self.shader.uniform_float( "normalMatrix", normal_matrix.to_3x3() )
 
 			geo = None
 
@@ -60,7 +56,7 @@ class BLidgeVirtualMeshRenderer:
 				geo = self.geo_sphere
 
 			if geo != None:
-				batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "normal": geo.normal, "uv": geo.uv }, indices=geo.index)
+				batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "uv": geo.uv }, indices=geo.index)
 				batch.draw(self.shader)
 
 		gpu.state.depth_test_set('NONE')
