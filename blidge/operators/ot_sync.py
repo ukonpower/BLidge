@@ -77,7 +77,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls.ws.start_server('localhost', scene.blidge.sync_port)
         cls.running = True
         bpy.app.handlers.frame_change_pre.append(cls.on_change_frame)
-        bpy.app.handlers.save_pre.append(cls.on_save)
+        bpy.app.handlers.save_post.append(cls.on_save)
             
     def stop(self):
         cls = BLIDGE_OT_Sync
