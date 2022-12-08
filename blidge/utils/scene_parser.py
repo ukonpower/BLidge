@@ -179,6 +179,7 @@ class SceneParser:
 
         parsed_objects = {
             "name": "root",
+            "actions": [],
             "children": [],
             "parent": None,
             "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
