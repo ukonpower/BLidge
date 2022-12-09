@@ -5,7 +5,7 @@ class GeometryCube:
 	index = None
 	uv = None
 
-	def __init__(self, x, y, z):
+	def __init__(self, x = 1, y = 1, z = 1):
 
 		hx = x / 2
 		hy = y / 2

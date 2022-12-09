@@ -38,6 +38,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
         items=[
 			( "empty", "Empty", "" ),
 			( "cube", "Cube", "" ),
+			( "plane", "Plane", "" ),
 			( "sphere", "Sphere", "" ),
 			( "mesh", "Mesh", "" ),
 			( "camera", "Camera", "" ),

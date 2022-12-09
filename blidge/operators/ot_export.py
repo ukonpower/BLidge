@@ -4,6 +4,8 @@ from bpy.types import (Operator)
 from bpy.props import (StringProperty, BoolProperty)
 from bpy.app.handlers import persistent
 
+import json
+
 from ..utils.scene_parser import SceneParser
 
 class THREECONNECTOR_OT_GLTFExportPath(Operator, ExportHelper):
