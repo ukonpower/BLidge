@@ -31,6 +31,18 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
 
+class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
+    x: bpy.props.FloatProperty(default=1)
+    y: bpy.props.FloatProperty(default=1)
+    z: bpy.props.FloatProperty(default=1)
+
+class BLidgeGeometryPlaneProperty(bpy.types.PropertyGroup):
+    x: bpy.props.FloatProperty(default=1)
+    z: bpy.props.FloatProperty(default=1)
+
+class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
+    radius: bpy.props.FloatProperty(default=0.5)
+
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
     type: bpy.props.EnumProperty(
 		name="type",
@@ -45,8 +57,14 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
 		],
 		default='empty'
 	)
+    param_cube: bpy.props.PointerProperty( type=BLidgeGeometryCubeProperty)
+    param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
+    param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
 
 classes = [
+    BLidgeGeometryCubeProperty,
+    BLidgeGeometryPlaneProperty,
+    BLidgeGeometrySphereProperty,
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
     BLidgeObjectProperty,

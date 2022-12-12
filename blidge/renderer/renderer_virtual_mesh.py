@@ -54,10 +54,13 @@ class BLidgeVirtualMeshRenderer:
 
 			if obj.blidge.type == 'cube':
 				geo = self.geo_cube
+				geo.setSize( obj.blidge.param_cube.x, obj.blidge.param_cube.y, obj.blidge.param_cube.z )
 			elif obj.blidge.type == 'sphere': 
 				geo = self.geo_sphere
+				geo.setSize( obj.blidge.param_sphere.radius )
 			elif obj.blidge.type == 'plane': 
 				geo = self.geo_plane
+				geo.setSize( obj.blidge.param_plane.x, obj.blidge.param_plane.z )
 
 			if geo != None:
 				batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "uv": geo.uv }, indices=geo.index)

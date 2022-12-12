@@ -1,5 +1,7 @@
 class GeometryCube:
 
+	size = [ None, None, None ]
+
 	position = None
 	normal = None
 	index = None
@@ -7,42 +9,7 @@ class GeometryCube:
 
 	def __init__(self, x = 1, y = 1, z = 1):
 
-		hx = x / 2
-		hy = y / 2
-		hz = z / 2
-
-		self.position = [
-			
-			[ - hx, - hy, hz ],
-			[ hx, - hy, hz ],
-			[ hx, hy, hz ],
-			[ - hx, hy, hz ],
-			
-			[ - hx, hy, - hz ],
-			[ hx, hy, - hz ],
-			[ hx, - hy, - hz ],
-			[ - hx, - hy, - hz ],
-
-			[ hx, - hy, - hz ],
-			[ hx, hy, - hz ],
-			[ hx, hy, hz ],
-			[ hx, - hy, hz ],
-
-			[ - hx, hy, - hz ],
-			[ - hx, - hy, - hz ],
-			[ - hx, - hy, hz ],
-			[ - hx, hy, hz ],
-
-			[ -hx, - hy, - hz ],
-			[ hx, - hy, - hz ],
-			[ hx, - hy, hz ],
-			[ - hx, - hy, hz ],
-
-			[ hx, hy, - hz ],
-			[ - hx, hy, - hz ],
-			[ -hx, hy, hz ],
-			[ hx, hy, hz ]
-		]
+		self.setSize( x, y, z )
 
 		self.normal = [
 			[ 0, 0, 1 ],
@@ -89,3 +56,47 @@ class GeometryCube:
 				[ 1, 1 ],
 				[ 0, 1 ],
 			])
+
+	def setSize( self, x = 1, y = 1, z = 1 ):
+
+		if self.size[0] == x and self.size[1] == y and self.size[2] == z: return
+		
+		self.size[0] = x
+		self.size[1] = y
+		self.size[2] = z
+
+		hx = x / 2
+		hy = y / 2
+		hz = z / 2
+
+		self.position = [
+			[ - hx, - hy, hz ],
+			[ hx, - hy, hz ],
+			[ hx, hy, hz ],
+			[ - hx, hy, hz ],
+			
+			[ - hx, hy, - hz ],
+			[ hx, hy, - hz ],
+			[ hx, - hy, - hz ],
+			[ - hx, - hy, - hz ],
+
+			[ hx, - hy, - hz ],
+			[ hx, hy, - hz ],
+			[ hx, hy, hz ],
+			[ hx, - hy, hz ],
+
+			[ - hx, hy, - hz ],
+			[ - hx, - hy, - hz ],
+			[ - hx, - hy, hz ],
+			[ - hx, hy, hz ],
+
+			[ -hx, - hy, - hz ],
+			[ hx, - hy, - hz ],
+			[ hx, - hy, hz ],
+			[ - hx, - hy, hz ],
+
+			[ hx, hy, - hz ],
+			[ - hx, hy, - hz ],
+			[ -hx, hy, hz ],
+			[ hx, hy, hz ]
+		]

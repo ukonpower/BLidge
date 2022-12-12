@@ -1,5 +1,7 @@
 class GeometryPlane:
 
+	size = [ None, None ]
+
 	position = None
 	normal = None
 	index = None
@@ -7,15 +9,7 @@ class GeometryPlane:
 
 	def __init__(self, x = 1, y = 1):
 
-		hx = x / 2
-		hy = y / 2
-
-		self.position = [
-			[ -hx, 0, - hy ],
-			[ hx, 0, - hy ],
-			[ hx, 0, hy ],
-			[ -hx, 0, hy ]
-		]
+		self.setSize( x, y )
 
 		self.normal = [
 			[ 0, - 1, 0 ],
@@ -36,3 +30,19 @@ class GeometryPlane:
 			[ 0, 1 ],
 		]
 
+	def setSize( self, x = 1, y = 1 ):
+
+		if self.size[0] == x and self.size[1] == y: return
+		
+		self.size[0] = x
+		self.size[1] = y
+
+		hx = x / 2
+		hy = y / 2
+
+		self.position = [
+			[ -hx, 0, - hy ],
+			[ hx, 0, - hy ],
+			[ hx, 0, hy ],
+			[ -hx, 0, hy ]
+		]
