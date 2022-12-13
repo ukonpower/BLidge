@@ -17,8 +17,7 @@ class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 
 		python_path = str(sys.executable)
 		python_path = bpy.path.abspath(sys.executable)
-		subprocess.call([python_path, '-m', 'pip', 'install', '--upgrade', "websockets", '--target', Globals.libpath, '--no-cache'])
-		subprocess.call([python_path, '-m', 'pip', 'install', '--upgrade', "aioquic", '--target', Globals.libpath, '--no-cache'])
+		subprocess.call([python_path, '-m', 'pip', 'install', '--upgrade', "websocket-server", '--target', Globals.libpath, '--no-cache'])
 		
 		return {'FINISHED'}
 	

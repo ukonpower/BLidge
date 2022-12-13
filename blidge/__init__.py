@@ -40,9 +40,6 @@ else:
     from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurveAccessor)
     from .renderer.renderer_virtual_mesh import (BLidgeVirtualMeshRenderer)
 
-from .utils.webtransport_server import WebTransportProtocol
-
-
 classes = [
     BLIDGE_OT_GLTFExport,
     BLIDGE_OT_SceneExport,

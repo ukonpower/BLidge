@@ -60,7 +60,8 @@ class GeometrySphere:
 		
 	def setSize( self, radius ):
 
-		if self.radius == radius: return
+		if self.radius == radius:
+			return
 
 		self.radius = radius
 		self.position = []
@@ -81,3 +82,4 @@ class GeometrySphere:
 				z = - math.cos( thetaI ) * radius
 
 				self.position.append([ x, y, z ])
+		

@@ -1,7 +1,6 @@
+import logging
 import threading
 import json
-import inspect
-import asyncio
 import sys
 
 from .. import Globals
@@ -9,95 +8,64 @@ from .. import Globals
 sys.path.insert(0, Globals.libpath)
 
 try:
-    import websockets
+    from websocket_server import WebsocketServer
 except:
     print("websocket not found")
 
 class WS:
 
+    server = None
+    on_coneect = None
+    server_thread = None
+
     def __init__(self):
-        self.server = None
-        self.server_stop = None
-        self.server_thread = None
-        self.sockets = set()
-        self.on_connect = None
-    
-    async def clientEvents(self, websocket ):
-        async for message in websocket:
-            print( message )
-    
-    async def handler(self,websocket):
-        self.sockets.add(websocket)
+        pass
 
-        if self.on_connect:
-            await self.on_connect(websocket)
-        
+    # server
+
+    def star_server_thread(self):
         try:
-            await self.clientEvents(websocket)
-        finally:
-            self.sockets.remove(websocket)
-
-    async def ws_server(self, host, port):
-
-        self.serverLoop = asyncio.get_running_loop()
-        self.serverStop = self.serverLoop.create_future()
-
-        try:
-            async with websockets.serve(self.handler, host, port, timeout=0.1, max_size=None, max_queue=None) as server :
-                self.server = server
-                await self.serverStop
+            self.server.run_forever()
         except:
             pass
-        
-
-    def run_server(self, host, port):
-        asyncio.run(self.ws_server(host,port))
 
     def start_server(self, host, port):
-        if self.server:
-            return False
-            
-        self.server_thread = threading.Thread(target=self.run_server, args=(host,port))
-        self.server_thread.setDaemon(True)
+        self.server = WebsocketServer( host=host, port=port, loglevel=logging.CRITICAL)
+        self.server.set_fn_new_client(self.new_client)
+        self.server_thread = threading.Thread(target=self.star_server_thread, daemon=True,)
         self.server_thread.start()
             
     def stop_server(self):
+        if self.server != None:
+            self.server.disconnect_clients_gracefully()
+            self.server.shutdown_gracefully()
+            self.server = None
+
+    # client
+
+    def new_client(self, client, server):
+        if self.on_connect:
+            self.on_connect(client)
+        pass
+
+    # send
+    
+    def get_str( self, type, data ):
+        return json.dumps({
+            "type": type,
+            "data": data
+        })
+    
+    def send(self, client, type, data):
+        messageStr = self.get_str(type,data)
         
-        if not self.server:
-            return False
+        if self.server:
+            self.server.send_message(client, messageStr)
 
-        # shutdown server
-        if self.serverLoop and self.serverStop:
-            self.serverLoop.call_soon_threadsafe(self.serverStop.set_result, 1)
-
-        self.server = None
-        self.wserver_thread = None
-        self.serverLoop = None
-        self.server_stop = None
-
-        return True
-    
-    async def send(self, websocket, type, data):
-        if( not self.server ):
-            return
-
-        messageStr = json.dumps({
-            "type": type,
-            "data": data
-        })
-
-        await websocket.send(messageStr)
-
-    
     def broadcast(self, type, data):
-        if not self.server:
-            return
+        messageStr = self.get_str(type,data)
 
-        messageStr = json.dumps({
-            "type": type,
-            "data": data
-        })
-
-        websockets.broadcast(self.sockets, messageStr)
+        if self.server:
+            self.server.send_message_to_all(messageStr)
 
         

@@ -65,11 +65,11 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls.ws.broadcast("sync/scene", animation_data)
 
     @classmethod
-    async def on_connect(cls, websocket):
+    def on_connect(cls, client):
         frame_data = cls.get_frame()
         animation_data = cls.get_animation()
-        await cls.ws.send(websocket, "sync/timeline", frame_data)
-        await cls.ws.send(websocket, "sync/scene", animation_data)
+        cls.ws.send(client, "sync/timeline", frame_data)
+        cls.ws.send(client, "sync/scene", animation_data)
         
     def start(self):
         scene = bpy.context.scene
