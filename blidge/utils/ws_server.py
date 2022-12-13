@@ -2,6 +2,11 @@ import threading
 import json
 import inspect
 import asyncio
+import sys
+
+from .. import Globals
+
+sys.path.insert(0, Globals.libpath)
 
 try:
     import websockets
@@ -37,9 +42,12 @@ class WS:
         self.serverLoop = asyncio.get_running_loop()
         self.serverStop = self.serverLoop.create_future()
 
-        async with websockets.serve(self.handler, host, port, compression=None) as server :
-            self.server = server
-            await self.serverStop
+        try:
+            async with websockets.serve(self.handler, host, port, timeout=0.1, max_size=None, max_queue=None) as server :
+                self.server = server
+                await self.serverStop
+        except:
+            pass
         
 
     def run_server(self, host, port):

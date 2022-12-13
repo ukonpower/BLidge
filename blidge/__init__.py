@@ -9,6 +9,9 @@ bl_info = {
     "category" : "Testing"
 }
 
+
+import os
+
 if "bpy" in locals():
     import imp
     imp.reload(BLidgeProperties)
@@ -20,6 +23,13 @@ if "bpy" in locals():
     imp.reload(BLIDGE_PT_ObjectPropertie)
     imp.reload(BLIDGE_PT_FCurveAccessor)
 else:
+    
+    import bpy
+
+    class Globals:
+        path = bpy.path.abspath(os.path.dirname(os.path.realpath(__file__) ))
+        libpath =  bpy.path.abspath(path + "/lib/")
+        
     from .globals.properties import (BLidgeProperties)
     from .globals.preference import (BLIDGE_OT_install_dependencies, BLIDGE_PT_install_dependencies)
     from .operators.ot_export import (BLIDGE_OT_GLTFExport, BLIDGE_OT_SceneExport)
@@ -30,7 +40,8 @@ else:
     from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurveAccessor)
     from .renderer.renderer_virtual_mesh import (BLidgeVirtualMeshRenderer)
 
-import bpy
+from .utils.webtransport_server import WebTransportProtocol
+
 
 classes = [
     BLIDGE_OT_GLTFExport,
@@ -65,3 +76,4 @@ def unregister():
 
     # renderer
     virtualmesh_renderer.end(bpy.context)
+

@@ -2,8 +2,10 @@ import bpy
 from bpy.types import AddonPreferences
 import sys
 import subprocess
+import os
 
 from pathlib import Path
+from .. import Globals
 
 class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 	bl_idname = "blidge.install_dependencies"
@@ -13,15 +15,11 @@ class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 
 	def execute(self, context):
 
-
-		py_exec = str(sys.executable)
-		module = 'websockets'
-
-		lib_path = Path(py_exec).parent.parent / "lib/site-packages"
-		subprocess.call([py_exec, "-m", "ensurepip", "--user" ])
-		subprocess.call([py_exec, "-m", "pip", "install", "--upgrade", "pip" ])
-		subprocess.call([py_exec,"-m", "pip", "install", f"--target={str(lib_path)}", module])
-
+		python_path = str(sys.executable)
+		python_path = bpy.path.abspath(sys.executable)
+		subprocess.call([python_path, '-m', 'pip', 'install', '--upgrade', "websockets", '--target', Globals.libpath, '--no-cache'])
+		subprocess.call([python_path, '-m', 'pip', 'install', '--upgrade', "aioquic", '--target', Globals.libpath, '--no-cache'])
+		
 		return {'FINISHED'}
 	
 class BLIDGE_PT_install_dependencies(AddonPreferences):

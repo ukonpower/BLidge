@@ -3,3 +3,5 @@ gulpOut.js
 node_modules
 *.pyc
 *.blend?*
+
+lib
