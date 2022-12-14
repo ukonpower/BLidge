@@ -17,12 +17,14 @@ vertex_shader = '''
 '''
 
 fragment_shader = '''
+    uniform float color;
+
 	in vec3 vColor;
 
     out vec4 FragColor;
 
     void main()
     {
-        FragColor = vec4(pow(vColor, vec3(2.0)), 1.0);
+        FragColor = vec4(pow(vColor * color, vec3(2.0)), 1.0);
     }
 '''

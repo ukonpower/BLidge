@@ -49,6 +49,7 @@ class BLidgeVirtualMeshRenderer:
 			model_view_matrix: Matrix = view_matrix @ model_matrix
 
 			self.shader.uniform_float( "modelViewMatrix", model_view_matrix )
+			self.shader.uniform_float( "color", 0.0 if bpy.context.space_data.shading.type == 'WIREFRAME' else 1.0  )
 
 			geo = None
 
@@ -63,7 +64,10 @@ class BLidgeVirtualMeshRenderer:
 				geo.setSize( obj.blidge.param_plane.x, obj.blidge.param_plane.z )
 
 			if geo != None:
-				batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "uv": geo.uv }, indices=geo.index)
+				if bpy.context.space_data.shading.type == 'WIREFRAME':
+					batch = batch_for_shader(self.shader, 'LINES', {"position": geo.position, "uv": geo.uv }, indices=geo.index_line)
+				else:
+					batch = batch_for_shader(self.shader, 'TRIS', {"position": geo.position, "uv": geo.uv }, indices=geo.index)
 				batch.draw(self.shader)
 
 		gpu.state.depth_test_set('NONE')

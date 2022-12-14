@@ -11,6 +11,7 @@ class GeometrySphere:
 	normal = []
 	uv = []
 	index = []
+	index_line = []
 
 	def __init__(self, radius = 0.5, width_segments = 30, height_segments = 20 ):
 
@@ -34,8 +35,6 @@ class GeometrySphere:
 				y = math.sin( thetaJ ) * widthRadius
 				z = - math.cos( thetaI ) * radius
 
-				self.position.append([ x, y, z ])
-
 				self.uv.append([
 					j / segments,
 					i / self.height_segments,
@@ -44,6 +43,14 @@ class GeometrySphere:
 				normal = mathutils.Vector([ x, y, z ])
 				normal.normalize()
 				self.normal.append([ normal.x, normal.y, normal.z ])
+
+				offset = i * segments + j
+
+				if i < self.height_segments:
+					self.index_line.extend([
+						[ offset + 0,  i * segments + (j + 1) % segments ],
+						[ offset + 0, offset + segments ],
+					])
 
 				self.index.extend([
 					[
@@ -59,7 +66,6 @@ class GeometrySphere:
 				])
 		
 	def setSize( self, radius ):
-
 		if self.radius == radius:
 			return
 

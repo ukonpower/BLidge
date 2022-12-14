@@ -5,6 +5,7 @@ class GeometryPlane:
 	position = None
 	normal = None
 	index = None
+	index_line= None
 	uv = None
 
 	def __init__(self, x = 1, y = 1):
@@ -21,6 +22,13 @@ class GeometryPlane:
 		self.index = [
 			[ 0, 1, 2 ],
 			[ 0, 2, 3 ]
+		]
+
+		self.index_line = [
+			[ 0, 1, ],
+			[ 1, 2, ],
+			[ 2, 3, ],
+			[ 3, 0, ],
 		]
 
 		self.uv = [
