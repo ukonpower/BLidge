@@ -58,8 +58,8 @@ class BLIDGE_OT_GLTFExport(Operator):
             for line in file.readlines()[3::]:
                 exec(line, globals(), locals())
 
-            # set gltf path
-            op.filepath = scene.blidge.export_gltf_path
+             # set gltf path
+            op.filepath = bpy.path.abspath(scene.blidge.export_gltf_path)
             
             # pass class dictionary to the operator
             kwargs = op.__dict__
