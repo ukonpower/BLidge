@@ -14,9 +14,8 @@ class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 			( "y", "Y", "" ),
 			( "z", "Z", "" ),
 			( "w", "W", "" ),
-			( "scalar", "Scalar", "" )
 		],
-		default='scalar'
+		default='x'
 	)
 
 class BLidgeControlsProperty(bpy.types.PropertyGroup):

@@ -25,6 +25,6 @@ fragment_shader = '''
 
     void main()
     {
-        FragColor = vec4(pow(vColor * color, vec3(2.0)), 1.0);
+        FragColor = vec4(pow(vColor * color, vec3(2.0)), 0.2);
     }
 '''

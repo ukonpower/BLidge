@@ -64,7 +64,7 @@ class SceneParser:
     def parse_fcurve(self, fcurve: bpy.types.FCurve ):
 
         parsed_fcurve = {
-            "axis": "scaler",
+            "axis": "x",
             "keyframes": None
         }
 

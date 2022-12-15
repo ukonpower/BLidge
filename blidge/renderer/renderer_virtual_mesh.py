@@ -45,6 +45,9 @@ class BLidgeVirtualMeshRenderer:
 
 		for obj in bpy.data.objects:
 
+			if obj.hide_viewport or obj.hide_render:
+				continue
+
 			model_matrix: Matrix = obj.matrix_world.copy()
 			model_view_matrix: Matrix = view_matrix @ model_matrix
 
