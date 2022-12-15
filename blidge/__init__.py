@@ -22,6 +22,7 @@ if "bpy" in locals():
     imp.reload(BLIDGE_PT_Controls)
     imp.reload(BLIDGE_PT_ObjectPropertie)
     imp.reload(BLIDGE_PT_FCurveAccessor)
+    imp.reload(BLidgeVirtualMeshRenderer)
 else:
     
     import bpy
@@ -39,6 +40,7 @@ else:
     from .panels.pt_prop_object import (BLIDGE_PT_ObjectPropertie)
     from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurveAccessor)
     from .renderer.renderer_virtual_mesh import (BLidgeVirtualMeshRenderer)
+    from .globals.events import (register_event, unregister_event)
 
 classes = [
     BLIDGE_OT_GLTFExport,
@@ -65,6 +67,9 @@ def register():
     # renderer
     virtualmesh_renderer.start(bpy.context)
 
+    # event
+    register_event()
+
 def unregister():
     BLidgeProperties.unregister()
     
@@ -73,4 +78,7 @@ def unregister():
 
     # renderer
     virtualmesh_renderer.end(bpy.context)
+
+    #event
+    unregister_event()
 
