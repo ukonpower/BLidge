@@ -53,6 +53,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
 			( "sphere", "Sphere", "" ),
 			( "mesh", "Mesh", "" ),
 			( "camera", "Camera", "" ),
+			( "light", "Light", "" ),
 		],
 		default='empty'
 	)

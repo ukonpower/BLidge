@@ -104,6 +104,13 @@ class SceneParser:
 
     def get_object_graph(self, object, parentName):
 
+        type = object.blidge.type
+
+        if object.type == 'CAMERA':
+            type = 'camera'
+        elif object.type == 'LIGHT':
+            type = 'light'
+
         object_data = {
             "name": object.name,
             "parent": parentName,
@@ -124,7 +131,7 @@ class SceneParser:
                 "z": object.scale.y
             },
             "actions": [],
-            "type": object.blidge.type,
+            "type": type,
         }
 
         # actions
