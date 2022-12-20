@@ -178,6 +178,65 @@ class SceneParser:
                 "fov": fov_radian / math.pi * 180
             }
 
+        # mesh
+
+        if  object.blidge.type == 'mesh' and object.type == 'MESH':
+            position = []
+            normal = []
+            index = []
+            uv = []
+
+            if( len( object.data.uv_layers ) > 0 ):
+                for uvdata in object.data.uv_layers[0].data:
+                    uv.extend([
+                        uvdata.uv.x,
+                        uvdata.uv.y,
+                    ])
+
+            for pl in object.data.polygons:
+
+                for vt_index in pl.vertices:
+                    vt = object.data.vertices[vt_index]
+
+                    position.extend([
+                        vt.co[0],
+                        vt.co[2],
+                        - vt.co[1],
+                    ])
+
+                    if( pl.use_smooth ):
+                        normal.extend([
+                            vt.normal[0],
+                            vt.normal[2],
+                            -vt.normal[1],
+                        ])
+                    else:
+                        normal.extend([
+                            pl.normal[0],
+                            pl.normal[2],
+                            -pl.normal[1],
+                        ])
+                
+                lp = pl.loop_indices
+
+                if( len( lp ) == 3 ):
+                    index.extend([
+                        lp[0], lp[1], lp[2]
+                    ])
+
+                if( len( lp ) == 4 ):
+                    index.extend([
+                        lp[0], lp[1], lp[2],
+                        lp[0], lp[2], lp[3],
+                    ])
+
+            object_data['mesh'] = {
+                "position": position,
+                "normal": normal,
+                "uv": uv,
+                "index": index,
+            }
+
         return object_data
 
 
