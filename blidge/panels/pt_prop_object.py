@@ -55,12 +55,13 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
         # box_material = layout.row()
         box_material.template_list("MY_UL_List", "The_List", object.blidge.material, "uniform_list", scene, "list_index")
 
+        box_material.label(text="Uniforms", icon='MATERIAL')
         for uni in object.blidge.material.uniform_list:
-            box_material.label(text="Material", icon='MATERIAL')
-            box_material.prop( object.blidge.material, 'name' )
+            box_material.prop( uni, 'name' )
 
         box_material.label(text="Uniforms")
         
         box_material.operator( "blidge.object_uniform_create", text='Create', icon="PLUS" )
+        
 
 
