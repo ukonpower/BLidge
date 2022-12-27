@@ -14,32 +14,53 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         object_type = object.blidge.type
 
+        # geometry
+
         if object.type == 'CAMERA':
-            blidge_type = 'camera'
             layout.label( text='Type: Camera' )
         elif object.type == 'LIGHT':
-            blidge_type = 'light'
             layout.label( text='Type: Light' )
         else:
             layout.prop( object.blidge, 'type', text='Type' )
 
         if( object_type == 'cube' ):
-            box = layout.box()
-            box.label(text="Cube Geometry", icon='MESH_DATA')
-            column = box.column(align=True)
+            box_geometry = layout.box()
+            box_geometry.label(text="Cube Geometry", icon='MESH_DATA')
+            column = box_geometry.column(align=True)
             column.prop( object.blidge.param_cube, 'x' )
             column.prop( object.blidge.param_cube, 'y' )
             column.prop( object.blidge.param_cube, 'z' )
 
         if( object_type == 'sphere' ):
-            box = layout.box()
-            box.label(text="Sphere Geometry", icon='MESH_DATA')
-            column = box.column(align=True)
+            box_geometry = layout.box()
+            box_geometry.label(text="Sphere Geometry", icon='MESH_DATA')
+            column = box_geometry.column(align=True)
             column.prop( object.blidge.param_sphere, 'radius' )
 
         if( object_type == 'plane' ):
-            box = layout.box()
-            box.label(text="Plane Geometry", icon='MESH_DATA')
-            column = box.column(align=True)
+            box_geometry = layout.box()
+            box_geometry.label(text="Plane Geometry", icon='MESH_DATA')
+            column = box_geometry.column(align=True)
             column.prop( object.blidge.param_plane, 'x' )
             column.prop( object.blidge.param_plane, 'z' )
+
+        # material
+
+        box_material = layout.box()
+        box_material.label(text="Material", icon='MATERIAL')
+        box_material.prop( object.blidge.material, 'name' )
+
+        scene = bpy.context.scene
+
+        # box_material = layout.row()
+        box_material.template_list("MY_UL_List", "The_List", object.blidge.material, "uniform_list", scene, "list_index")
+
+        for uni in object.blidge.material.uniform_list:
+            box_material.label(text="Material", icon='MATERIAL')
+            box_material.prop( object.blidge.material, 'name' )
+
+        box_material.label(text="Uniforms")
+        
+        box_material.operator( "blidge.object_uniform_create", text='Create', icon="PLUS" )
+
+

@@ -42,6 +42,15 @@ class BLidgeGeometryPlaneProperty(bpy.types.PropertyGroup):
 class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
     radius: bpy.props.FloatProperty(default=0.5)
 
+class BLidgeUniformProperty(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(default='')
+    value: bpy.props.StringProperty(default='')
+
+
+class BLidgeMaterialProperty(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(default='')
+    uniform_list: bpy.props.CollectionProperty(type=BLidgeUniformProperty)
+
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
     type: bpy.props.EnumProperty(
 		name="type",
@@ -60,6 +69,8 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_cube: bpy.props.PointerProperty( type=BLidgeGeometryCubeProperty)
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
+    material: bpy.props.PointerProperty( type=BLidgeMaterialProperty)
+
 
 classes = [
     BLidgeGeometryCubeProperty,
@@ -67,6 +78,8 @@ classes = [
     BLidgeGeometrySphereProperty,
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
+    BLidgeUniformProperty,
+    BLidgeMaterialProperty,
     BLidgeObjectProperty,
 ]
 
