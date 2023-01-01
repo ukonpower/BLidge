@@ -1,11 +1,15 @@
 import bpy
 
 from ..utils.gltf import get_gltf_presets
+from ..ui.ui_list_uniforms import (createAccesorList)
+
+class BLidgeNameProperty(bpy.types.PropertyGroup):
+	name: bpy.props.StringProperty(default='')
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
 	id: bpy.props.StringProperty(default='')
-	accessor: bpy.props.StringProperty(default='')
+	accessor: bpy.props.StringProperty(default='',update=createAccesorList)
 	axis: bpy.props.EnumProperty(
 		name="axis",
         description="value axis",
@@ -29,6 +33,8 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
+    accessor_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
+    object_uniform_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=1)
@@ -45,7 +51,6 @@ class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
 class BLidgeUniformProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(default='')
     value: bpy.props.StringProperty(default='')
-
 
 class BLidgeMaterialProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(default='')
