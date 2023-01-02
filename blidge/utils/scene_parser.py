@@ -80,26 +80,6 @@ class SceneParser:
                 
         return parsed_fcurve
     
-    # Parse Action ----------------------
-
-    def parse_action(self, action: bpy.types.Action ):
-
-        parsed_fcurve_list = dict()
-        
-        for fcurve in action.fcurves:
-            for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-                fcurveId = get_fcurve_id(fcurve, True)
-                if( fcurve_prop.id == fcurveId ):
-                    if( fcurve_prop.accessor in parsed_fcurve_list ):
-                        parsed_fcurve_list[fcurve_prop.accessor].append(self.parse_fcurve(fcurve))
-                    else:
-                        parsed_fcurve_list[fcurve_prop.accessor] = [self.parse_fcurve(fcurve)]
-                
-        return {
-            "name": action.name_full,
-            "fcurve_groups": parsed_fcurve_list
-        }
-
     #  SceneGraph ----------------------
 
     def get_object_graph(self, object, parentName):
@@ -130,23 +110,29 @@ class SceneParser:
                 "y": object.scale.z,
                 "z": object.scale.y
             },
-            "actions": [],
+            "animation": [],
             "type": type,
+            "mesh": None,
+            "material": {
+                "name": "",
+                "uniforms": []
+            }
         }
 
-        # actions
+        # animation
 
         object_animation_data = object.animation_data
-            
         if object_animation_data:
-                if object_animation_data.action != None:
-                    object_data["actions"].append( object_animation_data.action.name_full )
+            action = object_animation_data.action
+            if action != None:
+                for fcurve in action.fcurves:
+                    for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
+                        fcurveId = get_fcurve_id(fcurve, True)
+                        
+                        if not (fcurve_prop.accessor in object_data["animation"]) and fcurve_prop.id == fcurveId:
+                            object_data["animation"].append(fcurve_prop.accessor)
 
-        for matSlot in object.material_slots:
-            mat_animation_data = matSlot.material.node_tree.animation_data
-            if mat_animation_data:
-                object_data["actions"].append( mat_animation_data.action.name_full )
-
+        # children
 
         for child in object.children:
             object_data["children"].append(self.get_object_graph(child, object.name))
@@ -237,6 +223,18 @@ class SceneParser:
                 "index": index,
             }
 
+        # material
+
+        material = object.blidge.material
+
+        object_data["material"]["name"] = material.name
+
+        for uni in material.uniform_list:
+            object_data["material"]["uniforms"].append({
+                "name": uni.name,
+                "value": uni.value
+            })
+
         return object_data
 
 
@@ -245,13 +243,17 @@ class SceneParser:
 
         parsed_objects = {
             "name": "root",
-            "actions": [],
+            "animation": [],
             "children": [],
             "parent": None,
             "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
             "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
             "scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
-            "type": 'empty'
+            "type": 'empty',
+            "material": {
+                "name": "",
+                "uniforms": []
+            }
         }
 
         for object in objects:
@@ -262,34 +264,30 @@ class SceneParser:
 
     #  Action List ----------------------
 
-    def get_action_list(self):
-        parsed_action_list = []
+    def get_curve_list(self):
+        parsed_curve_list = dict()
 
         for action in bpy.data.actions:
-            parsed_action_list.append( self.parse_action(action) )
         
-        return parsed_action_list
+            for fcurve in action.fcurves:
+                
+                for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
+                    fcurveId = get_fcurve_id(fcurve, True)
+                    
+                    if( fcurve_prop.id == fcurveId ):
+                        
+                        if( not( fcurve_prop.accessor in parsed_curve_list ) ):
+                            parsed_curve_list[fcurve_prop.accessor] = []
 
-    #  Action List ----------------------
-
-    def get_fcurve_list(self):
-        parse_fcurve_list = []
-
-        actionList: list[bpy.types.Action] = bpy.data.actions
-        for action in actionList:
-            
-            curveList: list[bpy.types.FCurve] = action.fcurves
-            for fcurve in curveList:
-                parse_fcurve_list.append( self.parse_fcurve(fcurve) )
-        
-        return parse_fcurve_list
+                        parsed_curve_list[fcurve_prop.accessor].append(self.parse_fcurve(fcurve))
+                    
+        return parsed_curve_list
     
     #  API ----------------------
 
     def get_scene(self):
         scene_data = {
             "scene": self.get_scene_graph(),
-            "actions": self.get_action_list(),
-            "fcurves": self.get_fcurve_list(),
+            "animations": self.get_curve_list(),
         }
         return scene_data
