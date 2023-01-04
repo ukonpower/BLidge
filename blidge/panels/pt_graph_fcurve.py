@@ -6,7 +6,7 @@ from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCu
 class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
 
     bl_label = 'BLidge'
-    bl_category = 'BLidge'
+    bl_category = 'F-Curve'
     bl_space_type = 'GRAPH_EDITOR'
     bl_region_type = 'UI'
 
