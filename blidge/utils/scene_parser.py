@@ -286,8 +286,13 @@ class SceneParser:
     #  API ----------------------
 
     def get_scene(self):
+
         scene_data = {
             "scene": self.get_scene_graph(),
             "animations": self.get_curve_list(),
+            "frame": {
+                'start': bpy.context.scene.frame_start,
+                'end': bpy.context.scene.frame_end,
+            }
         }
         return scene_data
