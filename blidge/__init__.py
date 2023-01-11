@@ -18,12 +18,12 @@ if "bpy" in locals():
     imp.reload(BLIDGE_OT_install_dependencies, BLIDGE_PT_install_dependencies)
     imp.reload(BLIDGE_OT_GLTFExport, BLIDGE_OT_SceneExport)
     imp.reload(BLIDGE_OT_Sync)
-    imp.reload(BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove)
+    imp.reload(BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove)
     imp.reload(BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename, BLIDGE_OT_FCurveAccessorClear)
     imp.reload(BLIDGE_PT_Controls)
     imp.reload(BLIDGE_PT_ObjectPropertie)
     imp.reload(BLIDGE_PT_FCurveAccessor)
-    imp.reload(BLIDGE_UL_Uniforms, BLidgeUniformListValues)
+    imp.reload(BLIDGE_UL_Uniforms, BLIDGE_UL_Animations, BLidgeUniformListValues)
     imp.reload(BLidgeVirtualMeshRenderer)
 else:
     
@@ -38,11 +38,11 @@ else:
     from .operators.ot_export import (BLIDGE_OT_GLTFExport, BLIDGE_OT_SceneExport)
     from .operators.ot_sync import (BLIDGE_OT_Sync)
     from .operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename, BLIDGE_OT_FCurveAccessorClear)
-    from .operators.ot_object import (BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove)
+    from .operators.ot_object import (BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove)
     from .panels.pt_view_controls import (BLIDGE_PT_Controls)
     from .panels.pt_prop_object import (BLIDGE_PT_ObjectPropertie)
     from .panels.pt_graph_fcurve import (BLIDGE_PT_FCurveAccessor)
-    from .ui.ui_list_uniforms import (BLIDGE_UL_Uniforms, BLidgeUniformListValues)
+    from .ui.ui_list import (BLIDGE_UL_Uniforms, BLIDGE_UL_Animations, BLidgeUniformListValues)
     from .renderer.renderer_virtual_mesh import (BLidgeVirtualMeshRenderer)
     from .globals.events import (register_event, unregister_event)
 
@@ -56,10 +56,13 @@ classes = [
     BLIDGE_OT_FCurveAccessorClear,
     BLIDGE_OT_ObjectUniformCreate,
     BLIDGE_OT_ObjectUniformRemove,
+    BLIDGE_OT_ObjectAnimationCreate,
+    BLIDGE_OT_ObjectAnimationRemove,
     BLIDGE_PT_Controls,
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,
     BLIDGE_PT_FCurveAccessor,
+    BLIDGE_UL_Animations,
     BLIDGE_UL_Uniforms,
     BLidgeUniformListValues
 ]

@@ -110,27 +110,21 @@ class SceneParser:
                 "y": object.scale.z,
                 "z": object.scale.y
             },
-            "animation": [],
+            "animation": {},
             "type": type,
             "mesh": None,
             "material": {
                 "name": "",
-                "uniforms": []
+                "uniforms": {}
             }
         }
 
         # animation
 
-        object_animation_data = object.animation_data
-        if object_animation_data:
-            action = object_animation_data.action
-            if action != None:
-                for fcurve in action.fcurves:
-                    for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-                        fcurveId = get_fcurve_id(fcurve, True)
-                        
-                        if not (fcurve_prop.accessor in object_data["animation"]) and fcurve_prop.id == fcurveId:
-                            object_data["animation"].append(fcurve_prop.accessor)
+        animation_list = object.blidge.animation_list
+
+        for animation in animation_list:
+            object_data["animation"][animation.name] = animation.accessor
 
         # children
 
@@ -230,10 +224,7 @@ class SceneParser:
         object_data["material"]["name"] = material.name
 
         for uni in material.uniform_list:
-            object_data["material"]["uniforms"].append({
-                "name": uni.name,
-                "value": uni.value
-            })
+            object_data["material"]["uniforms"][uni.name] = uni.accessor
 
         return object_data
 

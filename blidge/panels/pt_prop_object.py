@@ -57,6 +57,9 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         uniform_controls = box_material.row()
         uniform_controls.operator( "blidge.object_uniform_create", text='Create', icon="PLUS" )
-        
 
-
+        box_animation = layout.box()
+        box_animation.label(text="Animations", icon='GRAPH')
+        box_animation.template_list("BLIDGE_UL_Animations", "The_List", object.blidge, "animation_list", scene.blidge, "object_animation_list_index")
+        animation_controls = box_animation.row()
+        animation_controls.operator( "blidge.object_animation_create", text='Create', icon="PLUS" )

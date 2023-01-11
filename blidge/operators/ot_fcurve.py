@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import (Operator)
 
+from ..ui.ui_list import (updateFCurveAccessor)
 from ..utils.fcurve_manager import get_fcurve_id
 
 class BLIDGE_OT_FCurveAccessorCreate(Operator):
@@ -55,6 +56,6 @@ class BLIDGE_OT_FCurveAccessorClear(Operator):
                 bpy.context.scene.blidge.fcurve_list.remove(index)
                 break
 
-        bpy.context.area.tag_redraw()
+        updateFCurveAccessor(self, context)
         
         return {'FINISHED'}

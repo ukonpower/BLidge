@@ -1,7 +1,7 @@
 import bpy
 
 from ..utils.gltf import get_gltf_presets
-from ..ui.ui_list_uniforms import (createAccesorList)
+from ..ui.ui_list import (updateFCurveAccessor)
 
 class BLidgeNameProperty(bpy.types.PropertyGroup):
 	name: bpy.props.StringProperty(default='')
@@ -9,7 +9,7 @@ class BLidgeNameProperty(bpy.types.PropertyGroup):
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
 	id: bpy.props.StringProperty(default='')
-	accessor: bpy.props.StringProperty(default='',update=createAccesorList)
+	accessor: bpy.props.StringProperty(default='',update=updateFCurveAccessor)
 	axis: bpy.props.EnumProperty(
 		name="axis",
         description="value axis",
@@ -35,6 +35,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     accessor_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     object_uniform_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
+    object_animation_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=1)
@@ -48,13 +49,14 @@ class BLidgeGeometryPlaneProperty(bpy.types.PropertyGroup):
 class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
     radius: bpy.props.FloatProperty(default=0.5)
 
-class BLidgeUniformProperty(bpy.types.PropertyGroup):
+class BLidgeAnimationProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(default='')
-    value: bpy.props.StringProperty(default='')
+    accessor: bpy.props.StringProperty(default='')
+    editable: bpy.props.BoolProperty(default=True)
 
 class BLidgeMaterialProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(default='')
-    uniform_list: bpy.props.CollectionProperty(type=BLidgeUniformProperty)
+    uniform_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
 
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
     type: bpy.props.EnumProperty(
@@ -75,7 +77,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     material: bpy.props.PointerProperty( type=BLidgeMaterialProperty)
-
+    animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
 
 classes = [
     BLidgeGeometryCubeProperty,
@@ -83,7 +85,7 @@ classes = [
     BLidgeGeometrySphereProperty,
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
-    BLidgeUniformProperty,
+    BLidgeAnimationProperty,
     BLidgeMaterialProperty,
     BLidgeObjectProperty,
 ]
