@@ -14,10 +14,10 @@ def updateFCurveAccessor(self,context):
     # default animation
 
     table = [
+        { "target": "_hide_render", "name": "hide" },
         { "target": "_scale", "name": "scale" },
         { "target": "_rotation_euler", "name": "rotation" },
         { "target": "_location", "name": "position" },
-        { "target": "_hide_render", "name": "hide" },
     ]
 
     for obj in context.scene.objects:
