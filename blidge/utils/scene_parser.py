@@ -112,7 +112,7 @@ class SceneParser:
             },
             "animation": {},
             "type": type,
-            "mesh": None,
+            "param": {},
             "material": {
                 "name": "",
                 "uniforms": {}
@@ -154,9 +154,9 @@ class SceneParser:
                     fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
 
                 
-            object_data['camera'] = {
+            object_data['param'].update( {
                 "fov": fov_radian / math.pi * 180
-            }
+            } )
 
         # mesh
 
@@ -210,13 +210,36 @@ class SceneParser:
                         lp[0], lp[2], lp[3],
                     ])
 
-            object_data['mesh'] = {
+            object_data['param'].update( {
                 "position": position,
                 "normal": normal,
                 "uv": uv,
                 "index": index,
+            } )
+
+        # light
+
+        if object.type == 'LIGHT':
+
+            light = bpy.data.lights[object.name]
+
+            object_data["param"]["color"] = {
+                "x": light.color[0],
+                "y": light.color[1],
+                "z": light.color[2],
             }
 
+            object_data["param"]["intensity"] = light.energy
+            
+            if( light.type == 'SUN' ):
+                object_data["param"]["type"] = "directional"
+            elif( light.type == 'SPOT'):
+                object_data["param"]["type"] = "spot"
+                object_data["param"].update({
+                    "angle": light.spot_size,
+                    "blend": light.spot_blend
+                })
+            
         # material
 
         material = object.blidge.material
