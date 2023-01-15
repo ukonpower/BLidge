@@ -221,7 +221,7 @@ class SceneParser:
 
         if object.type == 'LIGHT':
 
-            light = bpy.data.lights[object.name]
+            light = object.data
 
             object_data["param"]["color"] = {
                 "x": light.color[0],
