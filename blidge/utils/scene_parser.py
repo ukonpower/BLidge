@@ -235,6 +235,7 @@ class SceneParser:
                 object_data["param"]["type"] = "directional"
             elif( light.type == 'SPOT'):
                 object_data["param"]["type"] = "spot"
+                object_data["param"]["intensity"] /= 500
                 object_data["param"].update({
                     "angle": light.spot_size,
                     "blend": light.spot_blend
