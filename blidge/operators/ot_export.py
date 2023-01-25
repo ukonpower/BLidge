@@ -83,7 +83,7 @@ class BLIDGE_OT_SceneExport(Operator):
     def execute(self, context):
         scene = bpy.context.scene
         data = SceneParser().get_scene()
-        path = scene.blidge.export_scene_data_path
+        path = bpy.path.abspath(scene.blidge.export_scene_data_path)
 
         with open( path, mode='wt', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False)
