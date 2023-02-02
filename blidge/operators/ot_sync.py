@@ -45,7 +45,8 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         return {
             'start': scene.frame_start,
             'end': scene.frame_end,
-            'current': scene.frame_current
+            'current': scene.frame_current,
+            "fps": scene.render.fps,
         }
 
     @classmethod

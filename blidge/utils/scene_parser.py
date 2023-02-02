@@ -308,6 +308,7 @@ class SceneParser:
             "frame": {
                 'start': bpy.context.scene.frame_start,
                 'end': bpy.context.scene.frame_end,
+                'fps': bpy.context.scene.render.fps,
             }
         }
         return scene_data
