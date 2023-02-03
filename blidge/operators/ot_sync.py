@@ -14,6 +14,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
 
     # frame
     sended_frame = None
+    sended_playing = None
 
     @classmethod
     def is_running(cls):
@@ -42,11 +43,19 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     @classmethod
     def get_frame(cls):
         scene = bpy.context.scene
+        screen = bpy.context.screen
+
+        playing = False
+
+        if screen != None:
+            playing = screen.is_animation_playing
+        
         return {
             'start': scene.frame_start,
             'end': scene.frame_end,
             'current': scene.frame_current,
             "fps": scene.render.fps,
+            "playing": playing,
         }
 
     @classmethod
@@ -56,9 +65,10 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     @classmethod
     def on_change_frame(cls, scene: bpy.types.Scene, any ):
         frame_data = cls.get_frame()
-        if frame_data["current"] != cls.sended_frame:
+        if frame_data["current"] != cls.sended_frame or frame_data["playing"] != cls.sended_playing:
             cls.ws.broadcast("sync/timeline", frame_data)
             cls.sended_frame = frame_data["current"]
+            cls.sended_playing = frame_data["playing"]
 
     @classmethod
     def on_save(cls, scene: bpy.types.Scene, any ):

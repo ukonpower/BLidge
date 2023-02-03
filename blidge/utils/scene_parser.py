@@ -309,6 +309,7 @@ class SceneParser:
                 'start': bpy.context.scene.frame_start,
                 'end': bpy.context.scene.frame_end,
                 'fps': bpy.context.scene.render.fps,
+                'playing': False
             }
         }
         return scene_data
