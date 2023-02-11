@@ -36,12 +36,12 @@ class SceneParser:
         return axis
 
     def parse_keyframe(self, keyframe: bpy.types.Keyframe):
+
         parsed_keyframe = {
                 "c": self.parse_vector(keyframe.co),
                 "h_l": self.parse_vector(keyframe.handle_left),
                 "h_r": self.parse_vector(keyframe.handle_right),
-                "e": keyframe.easing,
-                "i": keyframe.interpolation
+                "i": keyframe.interpolation[0]
         }
         return parsed_keyframe
 
