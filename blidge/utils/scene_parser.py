@@ -152,10 +152,29 @@ class SceneParser:
                     fov_radian = camera.angle
                 else:
                     fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
-
                 
             object_data['param'].update( {
                 "fov": fov_radian / math.pi * 180
+            } )
+
+        # geometry
+
+        if object.blidge.type == 'cube':
+            object_data['param'].update( {
+                "x": object.blidge.param_cube.x,
+                "y": object.blidge.param_cube.z,
+                "z": object.blidge.param_cube.y,
+            } )
+
+        if object.blidge.type == 'sphere':
+            object_data['param'].update( {
+                "r": object.blidge.param_sphere.radius,
+            } )
+        
+        if object.blidge.type == 'plane':
+            object_data['param'].update( {
+                "x": object.blidge.param_plane.x,
+                "y": object.blidge.param_plane.z
             } )
 
         # mesh
