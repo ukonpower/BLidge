@@ -21,20 +21,6 @@ class SceneParser:
             
         return parsed_vector
 
-    def get_fcurve_axis(self, fcurveId: str, axis: str):
-
-        axisList = 'xyzw'
-
-        if( not fcurveId.find( 'Shader NodetreeAction' ) > -1 ):
-            axisList = 'xzyw'
-
-        axisIndex = axisList.find(axis)
-
-        if( axisIndex > -1 ):
-            return 'xyzw'[axisIndex]
-
-        return axis
-
     def parse_keyframe(self, keyframe: bpy.types.Keyframe):
 
         parsed_keyframe = {
@@ -75,7 +61,7 @@ class SceneParser:
 
         for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
             if( fcurve_prop.id == fcurveId):
-                parsed_fcurve["axis"] = self.get_fcurve_axis( fcurveId, fcurve_prop.axis )
+                parsed_fcurve["axis"] = fcurve_prop.axis
                 break
                 
         return parsed_fcurve

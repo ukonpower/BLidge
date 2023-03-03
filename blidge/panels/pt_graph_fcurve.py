@@ -3,6 +3,20 @@ import bpy
 from ..utils.fcurve_manager import get_fcurve_id
 from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename, BLIDGE_OT_FCurveAccessorClear)
 
+def get_fcurve_axis(fcurveId: str, axis: str):
+
+    axisList = 'xyzw'
+
+    if( not fcurveId.find( 'Shader NodetreeAction' ) > -1 ):
+        axisList = 'xzyw'
+
+    axisIndex = axisList.find(axis)
+
+    if( axisIndex > -1 ):
+        return 'xyzw'[axisIndex]
+
+    return axis
+
 class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
 
     bl_label = 'BLidge'
@@ -37,7 +51,7 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                 op_create = box.operator( BLIDGE_OT_FCurveAccessorCreate.bl_idname, icon='PLUS' )
                 op_create.fcurve_id = fcurve_id
                 op_create.fcurve_accessor = get_fcurve_id(fcurve)
-                op_create.fcurve_axis = 'xyzw'[fcurve.array_index]
+                op_create.fcurve_axis = get_fcurve_axis( fcurve_id, 'xyzw'[fcurve.array_index] )
 
         if( len(bpy.context.selected_editable_fcurves) > 1 ):
             layout.label(text="Rename")
