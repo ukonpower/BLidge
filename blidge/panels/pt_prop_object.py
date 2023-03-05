@@ -44,6 +44,10 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             column.prop( object.blidge.param_plane, 'x' )
             column.prop( object.blidge.param_plane, 'z' )
 
+        # render
+
+        layout.prop( object.blidge, "render_virtual_mesh", text="Render virtual mesh" )
+
         # material
 
         box_material = layout.box()

@@ -71,13 +71,14 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
 			( "camera", "Camera", "" ),
 			( "light", "Light", "" ),
 		],
-		default='empty'
+		default='empty',
 	)
     param_cube: bpy.props.PointerProperty( type=BLidgeGeometryCubeProperty)
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     material: bpy.props.PointerProperty( type=BLidgeMaterialProperty)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
+    render_virtual_mesh: bpy.props.BoolProperty(default=False)
 
 classes = [
     BLidgeGeometryCubeProperty,
