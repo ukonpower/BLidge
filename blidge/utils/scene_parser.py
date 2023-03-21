@@ -228,6 +228,8 @@ class SceneParser:
 
             light = object.data
 
+            object_data["param"]["shadowMap"] = object.blidge.param_light.shadowMap
+
             object_data["param"]["color"] = {
                 "x": light.color[0],
                 "y": light.color[1],

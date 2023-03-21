@@ -20,6 +20,8 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             layout.label( text='Type: Camera' )
         elif object.type == 'LIGHT':
             layout.label( text='Type: Light' )
+            column = layout.column(align=True)
+            column.prop( object.blidge.param_light, 'shadowMap' )
         else:
             layout.prop( object.blidge, 'type', text='Type' )
 
