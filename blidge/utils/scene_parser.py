@@ -21,23 +21,30 @@ class SceneParser:
             
         return parsed_vector
 
-    def parse_keyframe(self, keyframe: bpy.types.Keyframe):
+    def parse_keyframe(self, keyframe: bpy.types.Keyframe, beforeKeyframe: bpy.types.Keyframe):
 
         parsed_keyframe = {
                 "c": self.parse_vector(keyframe.co),
                 "i": keyframe.interpolation[0]
         }
 
-        if parsed_keyframe["i"] == 'B':
+        if parsed_keyframe["i"] == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
             parsed_keyframe["h_l"] = self.parse_vector(keyframe.handle_left)
+
+        if parsed_keyframe["i"] == 'B':
             parsed_keyframe["h_r"] = self.parse_vector(keyframe.handle_right)
 
         return parsed_keyframe
 
     def parse_keyframe_list(self, keyframes: list[bpy.types.Keyframe], invert: bool ):
         parsed_keyframes = []
-        for keyframe in keyframes:
-            parsed_keyframe = self.parse_keyframe(keyframe)
+        
+        for i, keyframe in enumerate(keyframes):
+            if i > 0:
+                prev_keyframe = keyframes[i-1]
+                parsed_keyframe = self.parse_keyframe(keyframe, prev_keyframe)
+            else:
+                parsed_keyframe = self.parse_keyframe(keyframe, None)
 
             if invert:
                 parsed_keyframe["c"]["y"] *= -1
@@ -48,7 +55,7 @@ class SceneParser:
                 if( "h_r" in parsed_keyframe ):
                     parsed_keyframe["h_r"]["y"] *= -1
 
-            parsed_keyframes.append(parsed_keyframe)
+            parsed_keyframes.append(parsed_keyframe)  
                 
         return parsed_keyframes
 
