@@ -25,10 +25,13 @@ class SceneParser:
 
         parsed_keyframe = {
                 "c": self.parse_vector(keyframe.co),
-                "h_l": self.parse_vector(keyframe.handle_left),
-                "h_r": self.parse_vector(keyframe.handle_right),
                 "i": keyframe.interpolation[0]
         }
+
+        if parsed_keyframe["i"] == 'B':
+            parsed_keyframe["h_l"] = self.parse_vector(keyframe.handle_left)
+            parsed_keyframe["h_r"] = self.parse_vector(keyframe.handle_right)
+
         return parsed_keyframe
 
     def parse_keyframe_list(self, keyframes: list[bpy.types.Keyframe], invert: bool ):
@@ -38,8 +41,12 @@ class SceneParser:
 
             if invert:
                 parsed_keyframe["c"]["y"] *= -1
-                parsed_keyframe["h_l"]["y"] *= -1
-                parsed_keyframe["h_r"]["y"] *= -1
+
+                if( "h_l" in parsed_keyframe ):
+                    parsed_keyframe["h_l"]["y"] *= -1
+
+                if( "h_r" in parsed_keyframe ):
+                    parsed_keyframe["h_r"]["y"] *= -1
 
             parsed_keyframes.append(parsed_keyframe)
                 
@@ -51,13 +58,13 @@ class SceneParser:
 
         parsed_fcurve = {
             "axis": "x",
-            "keyframes": None
+            "k": None
         }
 
         fcurveId = get_fcurve_id(fcurve, True)
 
         invert = fcurveId.find( 'location_y' ) > -1 or fcurveId.find( 'rotation_euler_y' ) > -1
-        parsed_fcurve['keyframes'] = self.parse_keyframe_list(fcurve.keyframe_points, invert)
+        parsed_fcurve['k'] = self.parse_keyframe_list(fcurve.keyframe_points, invert)
 
         for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
             if( fcurve_prop.id == fcurveId):
