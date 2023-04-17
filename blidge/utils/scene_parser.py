@@ -78,51 +78,49 @@ class SceneParser:
             type = 'light'
 
         object_data = {
-            "name": object.name,
-            "parent": parentName,
-            "children": [],
-            "position": {
+            "n": object.name,
+            "prnt": parentName,
+            "ps": {
                 "x": object.location.x,
                 "y": object.location.z,
                 "z": -object.location.y
             },
-            "rotation": {
+            "rt": {
                 "x": object.rotation_euler.x,
                 "y": object.rotation_euler.z,
                 "z": -object.rotation_euler.y
             },
-            "scale": {
+            "sc": {
                 "x": object.scale.x,
                 "y": object.scale.z,
                 "z": object.scale.y
             },
-            "animation": {},
-            "type": type,
-            "param": {},
-            "material": {
-                "name": "",
-                "uniforms": {}
-            },
-            "visible": not object.hide_render
+            "prm": {},
+            "t": type,
+            "v": not object.hide_render
         }
 
         # animation
 
         animation_list = object.blidge.animation_list
 
-        for animation in animation_list:
-            object_data["animation"][animation.name] = animation.accessor
+        if len(animation_list) > 0:
+            object_data["anim"] = {}
+
+            for animation in animation_list:
+                object_data["anim"][animation.name] = animation.accessor
 
         # children
 
-        for child in object.children:
-            object_data["children"].append(self.get_object_graph(child, object.name))
+        if len(object.children) > 0:
+            object_data["chld"] = []
+            for child in object.children:
+                object_data["chld"].append(self.get_object_graph(child, object.name))
 
         # camera
 
         if  object.blidge.type == 'camera' and object.name in bpy.data.cameras:
             camera = bpy.data.cameras[object.name]
-
             render = bpy.context.scene.render
             width = render.pixel_aspect_x * render.resolution_x
             height = render.pixel_aspect_y * render.resolution_y
@@ -140,26 +138,26 @@ class SceneParser:
                 else:
                     fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
                 
-            object_data['param'].update( {
+            object_data['prm'].update( {
                 "fov": fov_radian / math.pi * 180
             } )
 
         # geometry
 
         if object.blidge.type == 'cube':
-            object_data['param'].update( {
+            object_data['prm'].update( {
                 "x": object.blidge.param_cube.x,
                 "y": object.blidge.param_cube.z,
                 "z": object.blidge.param_cube.y,
             } )
 
         if object.blidge.type == 'sphere':
-            object_data['param'].update( {
+            object_data['prm'].update( {
                 "r": object.blidge.param_sphere.radius,
             } )
         
         if object.blidge.type == 'plane':
-            object_data['param'].update( {
+            object_data['prm'].update( {
                 "x": object.blidge.param_plane.x,
                 "y": object.blidge.param_plane.z
             } )
@@ -216,7 +214,7 @@ class SceneParser:
                         lp[0], lp[2], lp[3],
                     ])
 
-            object_data['param'].update( {
+            object_data['prm'].update( {
                 "position": position,
                 "normal": normal,
                 "uv": uv,
@@ -229,22 +227,22 @@ class SceneParser:
 
             light = object.data
 
-            object_data["param"]["shadowMap"] = object.blidge.param_light.shadowMap
+            object_data["prm"]["shadowMap"] = object.blidge.param_light.shadowMap
 
-            object_data["param"]["color"] = {
+            object_data["prm"]["color"] = {
                 "x": light.color[0],
                 "y": light.color[1],
                 "z": light.color[2],
             }
 
-            object_data["param"]["intensity"] = light.energy
+            object_data["prm"]["intensity"] = light.energy
             
             if( light.type == 'SUN' ):
-                object_data["param"]["type"] = "directional"
+                object_data["prm"]["type"] = "directional"
             elif( light.type == 'SPOT'):
-                object_data["param"]["type"] = "spot"
-                object_data["param"]["intensity"] /= 500
-                object_data["param"].update({
+                object_data["prm"]["type"] = "spot"
+                object_data["prm"]["intensity"] /= 500
+                object_data["prm"].update({
                     "angle": light.spot_size,
                     "blend": light.spot_blend
                 })
@@ -253,10 +251,17 @@ class SceneParser:
 
         material = object.blidge.material
 
-        object_data["material"]["name"] = material.name
+        if material.name != '' or len( material.uniform_list ) > 0:
+            object_data["mat"] = {}
+
+        if material.name != '':
+            object_data["mat"]["n"] = material.name
+
+        if len( material.uniform_list ) > 0:
+            object_data["mat"]["uni"] = {}
 
         for uni in material.uniform_list:
-            object_data["material"]["uniforms"][uni.name] = uni.accessor
+            object_data["mat"]["uni"][uni.name] = uni.accessor
 
         return object_data
 
@@ -265,24 +270,19 @@ class SceneParser:
         objects = bpy.data.objects
 
         parsed_objects = {
-            "name": "root",
-            "animation": [],
-            "children": [],
-            "parent": None,
-            "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
-            "type": 'empty',
-            "visible": True,
-            "material": {
-                "name": "",
-                "uniforms": []
-            }
+            "n": "root",
+            "prnt": None,
+            "chld": [],
+            "ps": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "rt": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "sc": { "x": 1.0, "y": 1.0, "z": 1.0 },
+            "t": 'empty',
+            "v": True,
         }
 
         for object in objects:
             if( object.parent == None ):
-                parsed_objects["children"].append(self.get_object_graph(object, 'root'))
+                parsed_objects["chld"].append(self.get_object_graph(object, 'root'))
 
         return parsed_objects
 
