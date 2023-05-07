@@ -20,7 +20,27 @@ class BLidgeVirtualMeshRenderer:
 	geo_sphere = None
 
 	def __init__(self) -> None:
-		self.shader = gpu.types.GPUShader(vertex_shader, fragment_shader)
+		shaderInfo = gpu.types.GPUShaderCreateInfo()	
+		shaderInfo.vertex_in(0, 'VEC3', "position")
+		shaderInfo.vertex_in(1, 'VEC2', "uv")
+		shaderInfo.push_constant('MAT4', "modelViewMatrix")
+		shaderInfo.push_constant('MAT4', "projectionMatrix")
+		shaderInfo.push_constant('FLOAT', "uColor")
+
+		shaderInterface = gpu.types.GPUStageInterfaceInfo("shaderInterface")    
+		shaderInterface.smooth('VEC3', "vColor")
+
+		shaderInfo.vertex_out(shaderInterface)
+		shaderInfo.fragment_out(0, 'VEC4', 'fragColor')
+
+		shaderInfo.vertex_source(vertex_shader)    
+		shaderInfo.fragment_source(fragment_shader)
+
+		self.shader = gpu.shader.create_from_info(shaderInfo)
+
+		del shaderInfo
+		del shaderInterface
+		
 		self.geo_cube = GeometryCube()
 		self.geo_sphere = GeometrySphere()
 		self.geo_plane = GeometryPlane()
@@ -52,7 +72,7 @@ class BLidgeVirtualMeshRenderer:
 			model_view_matrix: Matrix = view_matrix @ model_matrix
 
 			self.shader.uniform_float( "modelViewMatrix", model_view_matrix )
-			self.shader.uniform_float( "color", 0.0 if bpy.context.space_data.shading.type == 'WIREFRAME' else 1.0  )
+			self.shader.uniform_float( "uColor", 0.0 if bpy.context.space_data.shading.type == 'WIREFRAME' else 1.0  )
 
 			geo = None
 
