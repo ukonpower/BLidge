@@ -9,15 +9,17 @@ class SceneParser:
     # Parse Keyframe ----------------------
 
     def parse_vector(self, vector):
+
         parsed_vector = {}
+        
         if hasattr( vector,"x" ):
-            parsed_vector["x"] = vector.x
+            parsed_vector['x'] = vector.x
         if hasattr( vector,"y" ):
-            parsed_vector["y"] = vector.y
+            parsed_vector['y'] = vector.y
         if hasattr( vector,"z" ):
-            parsed_vector["z"] = vector.z
+            parsed_vector['z'] = vector.z
         if hasattr( vector,"w" ):
-            parsed_vector["w"] = vector.w
+            parsed_vector['w'] = vector.w
             
         return parsed_vector
 
@@ -28,11 +30,11 @@ class SceneParser:
                 "i": keyframe.interpolation[0]
         }
 
-        if parsed_keyframe["i"] == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
-            parsed_keyframe["h_l"] = self.parse_vector(keyframe.handle_left)
+        if parsed_keyframe['i'] == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
+            parsed_keyframe['h_l'] = self.parse_vector(keyframe.handle_left)
 
-        if parsed_keyframe["i"] == 'B':
-            parsed_keyframe["h_r"] = self.parse_vector(keyframe.handle_right)
+        if parsed_keyframe['i'] == 'B':
+            parsed_keyframe['h_r'] = self.parse_vector(keyframe.handle_right)
 
         return parsed_keyframe
 
@@ -40,6 +42,7 @@ class SceneParser:
         parsed_keyframes = []
         
         for i, keyframe in enumerate(keyframes):
+            
             if i > 0:
                 prev_keyframe = keyframes[i-1]
                 parsed_keyframe = self.parse_keyframe(keyframe, prev_keyframe)
@@ -47,13 +50,13 @@ class SceneParser:
                 parsed_keyframe = self.parse_keyframe(keyframe, None)
 
             if invert:
-                parsed_keyframe["c"]["y"] *= -1
+                parsed_keyframe['c']['y'] *= -1
 
                 if( "h_l" in parsed_keyframe ):
-                    parsed_keyframe["h_l"]["y"] *= -1
+                    parsed_keyframe['h_l']['y'] *= -1
 
                 if( "h_r" in parsed_keyframe ):
-                    parsed_keyframe["h_r"]["y"] *= -1
+                    parsed_keyframe['h_r']['y'] *= -1
 
             parsed_keyframes.append(parsed_keyframe)  
                 
@@ -75,7 +78,7 @@ class SceneParser:
 
         for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
             if( fcurve_prop.id == fcurveId):
-                parsed_fcurve["axis"] = fcurve_prop.axis
+                parsed_fcurve['axis'] = fcurve_prop.axis
                 break
                 
         return parsed_fcurve
@@ -92,26 +95,26 @@ class SceneParser:
             type = 'light'
 
         object_data = {
-            "n": object.name,
-            "prnt": parentName,
-            "ps": {
-                "x": object.location.x,
-                "y": object.location.z,
-                "z": -object.location.y
+            'name': object.name,
+            'type': type,
+            'parent': parentName,
+            'position': {
+                'x': object.location.x,
+                'y': object.location.z,
+                'z': -object.location.y
             },
-            "rt": {
-                "x": object.rotation_euler.x,
-                "y": object.rotation_euler.z,
-                "z": -object.rotation_euler.y
+            'rotation': {
+                'x': object.rotation_euler.x,
+                'y': object.rotation_euler.z,
+                'z': -object.rotation_euler.y
             },
-            "sc": {
-                "x": object.scale.x,
-                "y": object.scale.z,
-                "z": object.scale.y
+            'scale': {
+                'x': object.scale.x,
+                'y': object.scale.z,
+                'z': object.scale.y
             },
-            "prm": {},
-            "t": type,
-            "v": not object.hide_render
+            'visible': not object.hide_render,
+            'param': {},
         }
 
         # animation
@@ -119,21 +122,21 @@ class SceneParser:
         animation_list = object.blidge.animation_list
 
         if len(animation_list) > 0:
-            object_data["anim"] = {}
+            object_data['animation'] = {}
 
             for animation in animation_list:
-                object_data["anim"][animation.name] = animation.accessor
+                object_data['animation'][animation.name] = animation.accessor
 
         # children
 
         if len(object.children) > 0:
-            object_data["chld"] = []
+            object_data['children'] = []
             for child in object.children:
-                object_data["chld"].append(self.get_object_graph(child, object.name))
+                object_data['children'].append(self.get_object_graph(child, object.name))
 
         # camera
 
-        if  object.blidge.type == 'camera' and object.name in bpy.data.cameras:
+        if object.name in bpy.data.cameras:
             camera = bpy.data.cameras[object.name]
             render = bpy.context.scene.render
             width = render.pixel_aspect_x * render.resolution_x
@@ -152,26 +155,26 @@ class SceneParser:
                 else:
                     fov_radian = 2.0 * math.atan(math.tan(camera.angle * 0.5) / aspect_ratio)
                 
-            object_data['prm'].update( {
+            object_data['param'].update( {
                 "fov": fov_radian / math.pi * 180
             } )
 
         # geometry
 
         if object.blidge.type == 'cube':
-            object_data['prm'].update( {
+            object_data['param'].update( {
                 "x": object.blidge.param_cube.x,
                 "y": object.blidge.param_cube.z,
                 "z": object.blidge.param_cube.y,
             } )
 
         if object.blidge.type == 'sphere':
-            object_data['prm'].update( {
+            object_data['param'].update( {
                 "r": object.blidge.param_sphere.radius,
             } )
         
         if object.blidge.type == 'plane':
-            object_data['prm'].update( {
+            object_data['param'].update( {
                 "x": object.blidge.param_plane.x,
                 "y": object.blidge.param_plane.z
             } )
@@ -228,7 +231,7 @@ class SceneParser:
                         lp[0], lp[2], lp[3],
                     ])
 
-            object_data['prm'].update( {
+            object_data['param'].update( {
                 "position": position,
                 "normal": normal,
                 "uv": uv,
@@ -241,22 +244,22 @@ class SceneParser:
 
             light = object.data
 
-            object_data["prm"]["shadowMap"] = object.blidge.param_light.shadowMap
+            object_data['param']['shadowMap'] = object.blidge.param_light.shadowMap
 
-            object_data["prm"]["color"] = {
+            object_data['param']['color'] = {
                 "x": light.color[0],
                 "y": light.color[1],
                 "z": light.color[2],
             }
 
-            object_data["prm"]["intensity"] = light.energy
+            object_data['param']['intensity'] = light.energy
             
             if( light.type == 'SUN' ):
-                object_data["prm"]["type"] = "directional"
+                object_data['param']['type'] = "directional"
             elif( light.type == 'SPOT'):
-                object_data["prm"]["type"] = "spot"
-                object_data["prm"]["intensity"] /= 500
-                object_data["prm"].update({
+                object_data['param']['type'] = "spot"
+                object_data['param']['intensity'] /= 500
+                object_data['param'].update({
                     "angle": light.spot_size,
                     "blend": light.spot_blend
                 })
@@ -266,16 +269,16 @@ class SceneParser:
         material = object.blidge.material
 
         if material.name != '' or len( material.uniform_list ) > 0:
-            object_data["mat"] = {}
+            object_data['material'] = {}
 
         if material.name != '':
-            object_data["mat"]["n"] = material.name
+            object_data['material']['name'] = material.name
 
         if len( material.uniform_list ) > 0:
-            object_data["mat"]["uni"] = {}
+            object_data['material']['uniforms'] = {}
 
         for uni in material.uniform_list:
-            object_data["mat"]["uni"][uni.name] = uni.accessor
+            object_data['material']['uniforms'][uni.name] = uni.accessor
 
         return object_data
 
@@ -284,19 +287,19 @@ class SceneParser:
         objects = bpy.data.objects
 
         parsed_objects = {
-            "n": "root",
-            "prnt": None,
-            "chld": [],
-            "ps": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "rt": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "sc": { "x": 1.0, "y": 1.0, "z": 1.0 },
-            "t": 'empty',
-            "v": True,
+            "name": "root",
+            "parent": None,
+            "children": [],
+            "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+            "type": 'empty',
+            "visible": True,
         }
 
         for object in objects:
             if( object.parent == None ):
-                parsed_objects["chld"].append(self.get_object_graph(object, 'root'))
+                parsed_objects['children'].append(self.get_object_graph(object, 'root'))
 
         return parsed_objects
 
@@ -326,7 +329,7 @@ class SceneParser:
     def get_scene(self):
 
         scene_data = {
-            "scene": self.get_scene_graph(),
+            "root": self.get_scene_graph(),
             "animations": self.get_curve_list(),
             "frame": {
                 'start': bpy.context.scene.frame_start,
