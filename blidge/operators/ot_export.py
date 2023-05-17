@@ -7,6 +7,7 @@ from bpy.app.handlers import persistent
 import json
 
 from ..utils.scene_parser import SceneParser
+from ..operators.ot_sync import BLIDGE_OT_Sync
 
 class THREECONNECTOR_OT_GLTFExportPath(Operator, ExportHelper):
     bl_idname = 'object.threeconnector_export_glb_path'
@@ -64,6 +65,8 @@ class BLIDGE_OT_GLTFExport(Operator):
             # pass class dictionary to the operator
             kwargs = op.__dict__
             bpy.ops.export_scene.gltf(**kwargs)
+
+            BLIDGE_OT_Sync.ws.broadcast("event", { "type": 'export_gltf' } )
     
     def execute(self, context):
         self.export()
