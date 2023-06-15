@@ -14,7 +14,11 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         object_type = object.blidge.type
 
-        # geometry
+        # name
+
+        layout.prop( object.blidge, 'blidgeClass', text="class" )
+
+        # type
 
         if object.type == 'CAMERA':
             layout.label( text='Type: Camera' )
