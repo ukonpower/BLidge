@@ -1,8 +1,8 @@
-from ast import Str
 import math
 import bpy
 
 from .fcurve_manager import get_fcurve_id
+from ..utils.base64 import (float_array_to_base64, int_array_to_base64)
 
 class SceneParser:
 
@@ -232,11 +232,13 @@ class SceneParser:
                         lp[0], lp[2], lp[3],
                     ])
 
+            print( float_array_to_base64(position) )
+
             object_data['param'].update( {
-                "position": position,
-                "normal": normal,
-                "uv": uv,
-                "index": index,
+                "position": float_array_to_base64(position),
+                "normal": float_array_to_base64(normal),
+                "uv": float_array_to_base64(uv),
+                "index": int_array_to_base64(index),
             } )
 
         # light
