@@ -31,7 +31,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls.running = False
 
         try:
-            bpy.app.handlers.frame_change_pre.remove(cls.on_change_frame)
+            bpy.app.handlers.frame_change_post.remove(cls.on_change_frame)
         except ValueError:
             pass
         
@@ -49,13 +49,13 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
 
         if screen != None:
             playing = screen.is_animation_playing
-        
+
         return {
             'start': scene.frame_start,
             'end': scene.frame_end,
             'current': scene.frame_current,
             "fps": scene.render.fps,
-            "playing": playing,
+            'playing': playing
         }
 
     @classmethod
@@ -69,6 +69,18 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
             cls.ws.broadcast("sync/timeline", frame_data)
             cls.sended_frame = frame_data["current"]
             cls.sended_playing = frame_data["playing"]
+    
+    @classmethod
+    def on_start_playing(cls, scene: bpy.types.Scene, any ):
+        frame_data = cls.get_frame()
+        frame_data["playing"] = True
+        cls.ws.broadcast("sync/timeline", frame_data)
+    
+    @classmethod
+    def on_stop_playing(cls, scene: bpy.types.Scene, any ):
+        frame_data = cls.get_frame()
+        frame_data["playing"] = False
+        cls.ws.broadcast("sync/timeline", frame_data)
 
     @classmethod
     def on_save(cls, scene: bpy.types.Scene, any ):
@@ -87,7 +99,9 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls = BLIDGE_OT_Sync
         cls.ws.start_server('localhost', scene.blidge.sync_port)
         cls.running = True
-        bpy.app.handlers.frame_change_pre.append(cls.on_change_frame)
+        bpy.app.handlers.frame_change_post.append(cls.on_change_frame)
+        bpy.app.handlers.animation_playback_pre.append(cls.on_start_playing)
+        bpy.app.handlers.animation_playback_post.append(cls.on_stop_playing)
         bpy.app.handlers.save_post.append(cls.on_save)
             
     def stop(self):
@@ -96,7 +110,9 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls.running = False
         
         try:
-            bpy.app.handlers.frame_change_pre.remove(cls.on_change_frame)
+            bpy.app.handlers.frame_change_post.remove(cls.on_change_frame)
+            bpy.app.handlers.animation_playback_pre.remove(cls.on_start_playing)
+            bpy.app.handlers.animation_playback_post.remove(cls.on_stop_playing)
         except ValueError:
             pass
         
