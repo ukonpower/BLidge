@@ -97,7 +97,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     def start(self):
         scene = bpy.context.scene
         cls = BLIDGE_OT_Sync
-        cls.ws.start_server('localhost', scene.blidge.sync_port)
+        cls.ws.start_server(scene.blidge.sync_host, scene.blidge.sync_port)
         cls.running = True
         bpy.app.handlers.frame_change_post.append(cls.on_change_frame)
         bpy.app.handlers.animation_playback_pre.append(cls.on_start_playing)

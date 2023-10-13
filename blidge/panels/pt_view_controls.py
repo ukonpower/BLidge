@@ -22,6 +22,7 @@ class BLIDGE_PT_Controls(bpy.types.Panel):
         layout = self.layout
         layout.label(text='Sync')
         col = layout.column()
+        col.prop(scene.blidge,'sync_host', text='host')
         col.prop(scene.blidge,'sync_port', text='port')
         if syncCls.is_running():
             col.enabled = False
