@@ -25,16 +25,20 @@ class SceneParser:
 
     def parse_keyframe(self, keyframe: bpy.types.Keyframe, beforeKeyframe: bpy.types.Keyframe):
 
+        c = self.parse_vector(keyframe.co)
+
         parsed_keyframe = {
-                "c": self.parse_vector(keyframe.co),
+                "c": [ c["x"], c["y"] ],
                 "i": keyframe.interpolation[0]
         }
 
         if parsed_keyframe['i'] == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
-            parsed_keyframe['h_l'] = self.parse_vector(keyframe.handle_left)
+            h_l = self.parse_vector(keyframe.handle_left)
+            parsed_keyframe['h_l'] = [ h_l["x"], h_l["y"] ]
 
         if parsed_keyframe['i'] == 'B':
-            parsed_keyframe['h_r'] = self.parse_vector(keyframe.handle_right)
+            h_r = self.parse_vector(keyframe.handle_right)
+            parsed_keyframe['h_r'] = [ h_r["x"], h_r["y"] ]
 
         return parsed_keyframe
 
@@ -50,13 +54,13 @@ class SceneParser:
                 parsed_keyframe = self.parse_keyframe(keyframe, None)
 
             if invert:
-                parsed_keyframe['c']['y'] *= -1
+                parsed_keyframe['c'][1] *= -1
 
                 if( "h_l" in parsed_keyframe ):
-                    parsed_keyframe['h_l']['y'] *= -1
+                    parsed_keyframe['h_l'][1] *= -1
 
                 if( "h_r" in parsed_keyframe ):
-                    parsed_keyframe['h_r']['y'] *= -1
+                    parsed_keyframe['h_r'][1] *= -1
 
             parsed_keyframes.append(parsed_keyframe)  
                 
@@ -99,21 +103,21 @@ class SceneParser:
             'class': object.blidge.blidgeClass,
             'type': type,
             'parent': parentName,
-            'position': {
-                'x': object.location.x,
-                'y': object.location.z,
-                'z': -object.location.y
-            },
-            'rotation': {
-                'x': object.rotation_euler.x,
-                'y': object.rotation_euler.z,
-                'z': -object.rotation_euler.y
-            },
-            'scale': {
-                'x': object.scale.x,
-                'y': object.scale.z,
-                'z': object.scale.y
-            },
+            'position': [
+                object.location.x,
+                object.location.z,
+                -object.location.y
+            ],
+            'rotation': [
+                object.rotation_euler.x,
+                object.rotation_euler.z,
+                -object.rotation_euler.y
+            ],
+            'scale': [
+                object.scale.x,
+                object.scale.z,
+                object.scale.y
+            ],
             'visible': not object.hide_render,
             'param': {},
         }
@@ -293,9 +297,9 @@ class SceneParser:
             "name": "root",
             "parent": None,
             "children": [],
-            "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
-            "scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+            "position": [ 0.0, 0.0, 0.0 ],
+            "rotation": [ 0.0, 0.0, 0.0 ],
+            "scale": [ 1.0, 1.0, 1.0 ],
             "type": 'empty',
             "visible": True,
         }
