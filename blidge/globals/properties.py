@@ -76,6 +76,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
 			( "camera", "Camera", "" ),
 			( "light", "Light", "" ),
 			( "cylinder", "Cylinder", "" ),
+			( "gltf", "glTF", "" ),
 		],
 		default='empty',
 	)
