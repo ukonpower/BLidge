@@ -2,8 +2,8 @@ bl_info = {
     "name" : "blidge",
     "author" : "ukonpower",
     "description" : "",
-    "blender" : (3, 6, 1),
-    "version" : (0, 0, 1),
+    "blender" : (4, 2, 0),
+    "version" : (1, 0, 0),
     "location" : "",
     "warning" : "",
     "category" : "Testing"
