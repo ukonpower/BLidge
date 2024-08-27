@@ -29,18 +29,24 @@ class SceneParser:
 
         c = self.parse_vector(keyframe.co)
 
-        parsed_keyframe = {
-                "c": [ c["x"], c["y"] ],
-                "i": keyframe.interpolation[0]
-        }
+        interpolation = keyframe.interpolation[0]
 
-        if parsed_keyframe['i'] == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
+        parsed_keyframe = [
+            interpolation,
+            [ c["x"], c["y"] ],
+        ]
+
+        if interpolation == 'B' or (beforeKeyframe != None and beforeKeyframe.interpolation[0] == 'B'):
             h_l = self.parse_vector(keyframe.handle_left)
-            parsed_keyframe['h_l'] = [ h_l["x"], h_l["y"] ]
+            parsed_keyframe[1].extend([
+                h_l["x"], h_l["y"] 
+            ])
 
-        if parsed_keyframe['i'] == 'B':
+        if interpolation == 'B':
             h_r = self.parse_vector(keyframe.handle_right)
-            parsed_keyframe['h_r'] = [ h_r["x"], h_r["y"] ]
+            parsed_keyframe[1].extend([
+                h_r["x"], h_r["y"] 
+            ])
 
         return parsed_keyframe
 
@@ -56,13 +62,13 @@ class SceneParser:
                 parsed_keyframe = self.parse_keyframe(keyframe, None)
 
             if invert:
-                parsed_keyframe['c'][1] *= -1
+                parsed_keyframe[1][1] *= -1
 
-                if( "h_l" in parsed_keyframe ):
-                    parsed_keyframe['h_l'][1] *= -1
+                if( len(parsed_keyframe[1]) > 2 ):
+                    parsed_keyframe[1][3] *= -1
 
-                if( "h_r" in parsed_keyframe ):
-                    parsed_keyframe['h_r'][1] *= -1
+                if( len(parsed_keyframe[1]) > 4 ):
+                    parsed_keyframe[1][5] *= -1
 
             parsed_keyframes.append(parsed_keyframe)  
                 
