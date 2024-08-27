@@ -2,13 +2,13 @@ import bpy;
 import re;
 
 def get_fcurve_id(fcurve: bpy.types.FCurve, axis: bool = False):
-	result = fcurve.data_path
+	result = ""
 
 	actionName = re.search(r'(?<=\(\").*?(?=\"\))', str(fcurve.id_data))
 	if actionName:
-		result = actionName.group() + '_' + result
+		result = actionName.group() + '_' + fcurve.data_path
 	else:
-		result = "unknown" + "_" + result
+		result = "unknown" + "_" + fcurve.data_path
 
 	if axis:
 		result += '_' + 'xyzw'[fcurve.array_index]

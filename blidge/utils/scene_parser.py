@@ -6,6 +6,8 @@ from ..utils.base64 import (float_array_to_base64, int_array_to_base64)
 
 class SceneParser:
 
+    animation_data = []
+
     # Parse Keyframe ----------------------
 
     def parse_vector(self, vector):
@@ -130,7 +132,9 @@ class SceneParser:
             object_data['animation'] = {}
 
             for animation in animation_list:
-                object_data['animation'][animation.name] = animation.accessor
+                if( animation.accessor in self.animation_data["dict"] ):
+                    object_data['animation'][animation.name] = self.animation_data["dict"][animation.accessor]
+
 
         # children
 
@@ -285,7 +289,8 @@ class SceneParser:
             object_data['material']['uniforms'] = {}
 
         for uni in material.uniform_list:
-            object_data['material']['uniforms'][uni.name] = uni.accessor
+            if( uni.accessor in self.animation_data["dict"] ):
+                object_data['material']['uniforms'][uni.name] = self.animation_data["dict"][uni.accessor]
 
         return object_data
 
@@ -297,9 +302,6 @@ class SceneParser:
             "name": "root",
             "parent": None,
             "children": [],
-            "position": [ 0.0, 0.0, 0.0 ],
-            "rotation": [ 0.0, 0.0, 0.0 ],
-            "scale": [ 1.0, 1.0, 1.0 ],
             "type": 'empty',
             "visible": True,
         }
@@ -312,32 +314,47 @@ class SceneParser:
 
     #  Action List ----------------------
 
-    def get_curve_list(self):
-        parsed_curve_list = dict()
+    def get_animation_list(self):
+        
+        animation_list = []
 
+        # dict
+
+        animation_dict = {}
+        dict_counter = 0
+        
         for action in bpy.data.actions:
         
             for fcurve in action.fcurves:
+
+                fcurveId = get_fcurve_id(fcurve)
                 
                 for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-                    fcurveId = get_fcurve_id(fcurve, True)
                     
-                    if( fcurve_prop.id == fcurveId ):
-                        
-                        if( not( fcurve_prop.accessor in parsed_curve_list ) ):
-                            parsed_curve_list[fcurve_prop.accessor] = []
+                    fcurveAxisId = get_fcurve_id(fcurve, True)
+                    
+                    if( fcurve_prop.id == fcurveAxisId ):
 
-                        parsed_curve_list[fcurve_prop.accessor].append(self.parse_fcurve(fcurve))
+                        if( not( fcurveId in animation_dict ) ):
+                            
+                            animation_dict[fcurveId] = dict_counter
+                            animation_list.append([])
+                            dict_counter += 1
+
+                        animation_list[animation_dict[fcurveId]].append(self.parse_fcurve(fcurve))
                     
-        return parsed_curve_list
+        return { "list": animation_list, "dict": animation_dict }
     
     #  API ----------------------
 
     def get_scene(self):
 
+        self.animation_data = self.get_animation_list()
+        scene_graph = self.get_scene_graph()
+
         scene_data = {
-            "root": self.get_scene_graph(),
-            "animations": self.get_curve_list(),
+            "animations": self.animation_data["list"],
+            "root": scene_graph,
             "frame": {
                 'start': bpy.context.scene.frame_start,
                 'end': bpy.context.scene.frame_end,
