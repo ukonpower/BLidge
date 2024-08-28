@@ -39,16 +39,16 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     object_animation_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
-    x: bpy.props.FloatProperty(default=1)
-    y: bpy.props.FloatProperty(default=1)
-    z: bpy.props.FloatProperty(default=1)
+    x: bpy.props.FloatProperty(default=2)
+    y: bpy.props.FloatProperty(default=2)
+    z: bpy.props.FloatProperty(default=2)
 
 class BLidgeGeometryPlaneProperty(bpy.types.PropertyGroup):
-    x: bpy.props.FloatProperty(default=1)
-    z: bpy.props.FloatProperty(default=1)
+    x: bpy.props.FloatProperty(default=2)
+    z: bpy.props.FloatProperty(default=2)
 
 class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
-    radius: bpy.props.FloatProperty(default=0.5)
+    radius: bpy.props.FloatProperty(default=1)
 
 class BLidgeLightProperty(bpy.types.PropertyGroup):
     shadowMap: bpy.props.BoolProperty(default=False)
