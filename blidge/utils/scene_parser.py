@@ -133,11 +133,11 @@ class SceneParser:
         # animation
 
         animation_list = object.blidge.animation_list
-
         if len(animation_list) > 0:
             object_data['animation'] = {}
 
             for animation in animation_list:
+                print( self.animation_data["dict"] )
                 if( animation.accessor in self.animation_data["dict"] ):
                     object_data['animation'][animation.name] = self.animation_data["dict"][animation.accessor]
 
@@ -333,21 +333,21 @@ class SceneParser:
         
             for fcurve in action.fcurves:
 
-                fcurveId = get_fcurve_id(fcurve)
-                
+                fcurveAxisId = get_fcurve_id(fcurve, True)
+
                 for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
                     
-                    fcurveAxisId = get_fcurve_id(fcurve, True)
+                    accessorId = fcurve_prop.accessor
                     
                     if( fcurve_prop.id == fcurveAxisId ):
 
-                        if( not( fcurveId in animation_dict ) ):
+                        if( not( accessorId in animation_dict ) ):
                             
-                            animation_dict[fcurveId] = dict_counter
+                            animation_dict[accessorId] = dict_counter
                             animation_list.append([])
                             dict_counter += 1
 
-                        animation_list[animation_dict[fcurveId]].append(self.parse_fcurve(fcurve))
+                        animation_list[animation_dict[accessorId]].append(self.parse_fcurve(fcurve))
                     
         return { "list": animation_list, "dict": animation_dict }
     
