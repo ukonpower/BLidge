@@ -15,7 +15,7 @@ except:
 class WS:
 
     server = None
-    on_coneect = None
+    on_connect = None
     server_thread = None
 
     def __init__(self):
@@ -23,7 +23,7 @@ class WS:
 
     # server
 
-    def star_server_thread(self):
+    def start_server_thread(self):
         try:
             self.server.run_forever()
         except:
@@ -32,7 +32,7 @@ class WS:
     def start_server(self, host, port):
         self.server = WebsocketServer( host=host, port=port, loglevel=logging.CRITICAL)
         self.server.set_fn_new_client(self.new_client)
-        self.server_thread = threading.Thread(target=self.star_server_thread, daemon=True,)
+        self.server_thread = threading.Thread(target=self.start_server_thread, daemon=True,)
         self.server_thread.start()
             
     def stop_server(self):

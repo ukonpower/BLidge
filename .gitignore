@@ -4,4 +4,5 @@ node_modules
 *.pyc
 *.blend?*
 
-lib
+lib/*
+!lib/__init__.py
