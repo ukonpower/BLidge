@@ -8,26 +8,27 @@ from bpy.types import Operator
 
 class BLIDGE_OT_ObjectUniformCreate(Operator):
     bl_idname = 'blidge.object_uniform_create'
-    bl_label = "Create Uniform"
+    bl_label = "Create Animation (as Uniform)"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         object = context.object
-        item = object.blidge.uniform_list.add()
+        item = object.blidge.animation_list.add()
+        item.as_uniform = True
 
         return {'FINISHED'}
 
 
 class BLIDGE_OT_ObjectUniformRemove(Operator):
     bl_idname = 'blidge.object_uniform_remove'
-    bl_label = "Remove Uniform"
+    bl_label = "Remove Animation"
     bl_options = {'REGISTER', 'UNDO'}
 
     item_index: bpy.props.IntProperty(default=0)
 
     def execute(self, context):
         object = context.object
-        object.blidge.uniform_list.remove(self.item_index)
+        object.blidge.animation_list.remove(self.item_index)
 
         return {'FINISHED'}
 

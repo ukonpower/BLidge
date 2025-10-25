@@ -59,7 +59,8 @@ class BLIDGE_UL_Uniforms(UIList):
         row = layout.row()
         row.enabled = item.editable
         row.prop_search(item, 'accessor', context.scene.blidge, 'accessor_list', text='', icon="FCURVE")
-        ot_remove = row.operator( "blidge.object_uniform_remove", text='', icon='CANCEL', emboss=False )
+        row.prop(item, 'as_uniform', text='')
+        ot_remove = row.operator( "blidge.object_animation_remove", text='', icon='CANCEL', emboss=False )
         ot_remove.item_index = index
 
 class BLIDGE_UL_Animations(UIList):
@@ -68,6 +69,7 @@ class BLIDGE_UL_Animations(UIList):
         row = layout.row()
         row.enabled = item.editable
         row.prop_search(item, 'accessor', context.scene.blidge, 'accessor_list', text='', icon="FCURVE")
+        row.prop(item, 'as_uniform', text='')
         ot_remove = row.operator( "blidge.object_animation_remove", text='', icon='CANCEL', emboss=False )
         ot_remove.item_index = index
 

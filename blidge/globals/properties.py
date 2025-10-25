@@ -33,8 +33,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     accessor_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
-    object_uniform_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
-    object_animation_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
+    object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=2)
@@ -54,6 +53,11 @@ class BLidgeLightProperty(bpy.types.PropertyGroup):
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
     accessor: bpy.props.StringProperty(default='')
     editable: bpy.props.BoolProperty(default=True)
+    as_uniform: bpy.props.BoolProperty(
+        name="Uniformとして使用",
+        description="このアニメーションをマテリアルのUniformとして使用する",
+        default=False
+    )
 
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
     blidgeClass: bpy.props.StringProperty(description="blidge object name", default="")
@@ -77,7 +81,6 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
-    uniform_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
 

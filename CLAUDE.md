@@ -38,6 +38,7 @@ BLidgeは、BlenderのシーンとアニメーションデータをJSON形式で
 - F-Curveは`scene.blidge.fcurve_list`を介して「アクセサー」にマッピングされます
 - アニメーションデータはアクセサーIDを介してシーングラフとマテリアルユニフォーム間で共有されます
 - キーフレームデータにはベジエ補間用のハンドルが含まれます
+- 各アニメーション(`BLidgeAnimationProperty`)には`as_uniform`フラグがあり、マテリアルのUniformとして使用するかどうかを制御できます
 
 **WebSocket同期:**
 - `BLIDGE_OT_Sync`オペレーターがWebSocketサーバーのライフサイクルを管理
@@ -57,7 +58,8 @@ BLidgeは、BlenderのシーンとアニメーションデータをJSON形式で
 
 カスタムプロパティは`globals/properties.py`で定義されています:
 - **シーンプロパティ** (`BLidgeControlsProperty`): 同期ホスト/ポート、エクスポートパス、glTFプリセット
-- **オブジェクトプロパティ** (`BLidgeObjectProperty`): オブジェクトタイプ、ジオメトリパラメーター、マテリアルユニフォーム、アニメーションリスト
+- **オブジェクトプロパティ** (`BLidgeObjectProperty`): オブジェクトタイプ、ジオメトリパラメーター、アニメーションリスト
+- **アニメーションプロパティ** (`BLidgeAnimationProperty`): アクセサー、編集可能フラグ、`as_uniform`フラグ(Uniformとして使用するかどうか)
 - 各ジオメトリタイプ(立方体/球体/平面)には専用のパラメーターグループがあります
 
 ## 主要オペレーター

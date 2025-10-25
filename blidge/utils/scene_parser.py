@@ -197,14 +197,15 @@ class SceneParser:
                     "blend": light.spot_blend
                 })
             
-        # uniforms
+        # uniforms (as_uniformがTrueのアニメーションのみ)
 
-        uniform_list = object.blidge.uniform_list
+        animation_list = object.blidge.animation_list
+        uniform_items = [item for item in animation_list if item.as_uniform]
 
-        if len(uniform_list) > 0:
+        if len(uniform_items) > 0:
             object_data['uniforms'] = {}
 
-            for uni in uniform_list:
+            for uni in uniform_items:
                 if uni.accessor in self.animation_data["dict"]:
                     object_data['uniforms'][uni.accessor] = self.animation_data["dict"][uni.accessor]
 
