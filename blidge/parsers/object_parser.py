@@ -41,14 +41,11 @@ class ObjectParser:
         # 基本データ
         object_data = {
             'name': obj.name,
-            'class': obj.blidge.blidgeClass,
             'type': obj_type,
-            'parent': parent_name,
             'position': convert_position(obj.location),
             'rotation': convert_rotation(obj.rotation_euler),
             'scale': convert_scale(obj.scale),
             'visible': not obj.hide_render,
-            'param': {},
         }
 
         # アニメーション
@@ -62,26 +59,32 @@ class ObjectParser:
                         self.animation_data['dict'][animation.accessor]
 
         # 専門パーサーに委譲してパラメータを取得
+        param = {}
+
         # カメラ
         if obj.type == 'CAMERA':
-            object_data['param'].update(CameraParser.parse(obj))
+            param.update(CameraParser.parse(obj))
 
         # ライト
         if obj.type == 'LIGHT':
-            object_data['param'].update(LightParser.parse(obj))
+            param.update(LightParser.parse(obj))
 
         # プリミティブジオメトリ
         if obj.blidge.type in ['cube', 'sphere', 'plane']:
-            object_data['param'].update(GeometryParser.parse(obj))
+            param.update(GeometryParser.parse(obj))
 
         # メッシュ
         if obj.blidge.type == 'mesh' and obj.type == 'MESH':
-            object_data['param'].update(MeshParser.parse(obj))
+            param.update(MeshParser.parse(obj))
 
-        # マテリアル
-        material_data = MaterialParser.parse(obj, self.animation_data)
-        if material_data is not None:
-            object_data['material'] = material_data
+        # パラメータがある場合のみ追加
+        if len(param) > 0:
+            object_data['param'] = param
+
+        # ユニフォーム
+        uniforms = MaterialParser.parse(obj, self.animation_data)
+        if uniforms is not None:
+            object_data['uniforms'] = uniforms
 
         # 子オブジェクトの再帰的処理
         if len(obj.children) > 0:

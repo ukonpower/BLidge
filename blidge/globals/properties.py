@@ -65,7 +65,6 @@ class BLidgeAnimationProperty(bpy.types.PropertyGroup):
     )
 
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
-    blidgeClass: bpy.props.StringProperty(description="blidge object name", default="")
     type: bpy.props.EnumProperty(
 		name="type",
         description="object type",

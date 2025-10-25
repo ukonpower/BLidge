@@ -24,7 +24,6 @@ class SceneParser:
 
         object_data = {
             'name': object.name,
-            'class': object.blidge.blidgeClass,
             'type': type,
             'parent': parentName,
             'position': [

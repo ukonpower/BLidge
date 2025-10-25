@@ -14,10 +14,6 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         object_type = object.blidge.type
 
-        # name
-
-        layout.prop(object.blidge, 'blidgeClass', text="class")
-
         # type
 
         if object.type == 'CAMERA':

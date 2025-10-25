@@ -36,4 +36,4 @@ class MaterialParser:
                 key = uni.name if uni.name else uni.accessor
                 uniforms[key] = animation_data['dict'][uni.accessor]
 
-        return {'uniforms': uniforms} if len(uniforms) > 0 else None
+        return uniforms if len(uniforms) > 0 else None
