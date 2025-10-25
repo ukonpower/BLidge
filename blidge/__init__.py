@@ -24,6 +24,7 @@ if "bpy" in locals():
     imp.reload(BLIDGE_OT_ObjectUniformRemove)
     imp.reload(BLIDGE_OT_ObjectAnimationCreate)
     imp.reload(BLIDGE_OT_ObjectAnimationRemove)
+    imp.reload(BLIDGE_OT_AddFCurveToAccessor)
     imp.reload(BLIDGE_OT_FCurveAccessorCreate)
     imp.reload(BLIDGE_OT_FCurveAccessorRename)
     imp.reload(BLIDGE_OT_FCurveAccessorClear)
@@ -41,7 +42,7 @@ else:
     from .operators.ot_export import BLIDGE_OT_GLTFExport, BLIDGE_OT_SceneExport
     from .operators.ot_sync import BLIDGE_OT_Sync
     from .operators.ot_fcurve import BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveAccessorRename, BLIDGE_OT_FCurveAccessorClear
-    from .operators.ot_object import BLIDGE_OT_AddCustomProperty, BLIDGE_OT_RemoveCustomProperty, BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove
+    from .operators.ot_object import BLIDGE_OT_AddCustomProperty, BLIDGE_OT_RemoveCustomProperty, BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove, BLIDGE_OT_AddFCurveToAccessor
     from .panels.pt_view_controls import BLIDGE_PT_Controls
     from .panels.pt_prop_object import BLIDGE_PT_ObjectPropertie
     from .panels.pt_graph_fcurve import BLIDGE_PT_FCurveAccessor
@@ -63,6 +64,7 @@ classes = [
     BLIDGE_OT_ObjectUniformRemove,
     BLIDGE_OT_ObjectAnimationCreate,
     BLIDGE_OT_ObjectAnimationRemove,
+    BLIDGE_OT_AddFCurveToAccessor,
     BLIDGE_PT_Controls,
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,

@@ -90,22 +90,36 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
             # アクセサーに紐づくF-Curveリストを表示
             if item.accessor:
-                # このアクセサーに紐づくF-Curveを検索
-                fcurves_with_accessor = [fc for fc in scene.blidge.fcurve_list if fc.accessor == item.accessor]
+                # このアクセサーに紐づくF-Curveを検索し、軸ごとにマッピング
+                fcurve_dict = {}
+                for fc in scene.blidge.fcurve_list:
+                    if fc.accessor == item.accessor:
+                        fcurve_dict[fc.axis] = fc
 
-                if fcurves_with_accessor:
-                    # F-Curveリストのヘッダー
-                    fcurve_header_row = item_box.row(align=True)
-                    fcurve_header_row.label(text='', icon='BLANK1')
-                    fcurve_header_row.label(text=f'F-Curves ({len(fcurves_with_accessor)})', icon='GRAPH')
+                # F-Curveリストのヘッダー
+                fcurve_header_row = item_box.row(align=True)
+                fcurve_header_row.label(text='', icon='BLANK1')
+                fcurve_header_row.label(text='F-Curves', icon='GRAPH')
 
-                    # 各F-Curveを表示
-                    for fc in fcurves_with_accessor:
-                        fcurve_row = item_box.row(align=True)
-                        fcurve_row.label(text='', icon='BLANK1')
-                        fcurve_row.label(text='', icon='BLANK1')
-                        fcurve_row.label(text=fc.id, icon='FCURVE_SNAPSHOT')
-                        fcurve_row.label(text=f'[{fc.axis.upper()}]')
+                # 各軸(x,y,z,w)のスロットを表示
+                all_axes = ['x', 'y', 'z', 'w']
+                for axis in all_axes:
+                    axis_row = item_box.row(align=True)
+                    axis_row.label(text='', icon='BLANK1')
+                    axis_row.label(text='', icon='BLANK1')
+
+                    # 軸ラベル
+                    axis_row.label(text=f'[{axis.upper()}]', icon='DOT')
+
+                    if axis in fcurve_dict:
+                        # F-Curveが割り当てられている場合、IDを表示
+                        fc = fcurve_dict[axis]
+                        axis_row.label(text=fc.id, icon='FCURVE_SNAPSHOT')
+                    else:
+                        # 空きスロットの場合、プラスボタンを表示
+                        ot_add = axis_row.operator("blidge.add_fcurve_to_accessor", text='', icon='ADD', emboss=False)
+                        ot_add.accessor = item.accessor
+                        ot_add.target_axis = axis
 
         # 作成ボタン
         animation_controls = box_animation.row()

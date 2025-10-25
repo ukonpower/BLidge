@@ -3,13 +3,26 @@ from bpy.types import (UIList)
 
 from ..utils.fcurve_manager import (get_fcurve_id, get_fcurve_prop)
 
+# updateFCurveAccessorの再帰呼び出しを防ぐためのフラグ
+_updating_fcurve_accessor = False
+
 def updateFCurveAccessor(self,context):
-    context.scene.blidge.accessor_list.clear()
-    for item in context.scene.blidge.fcurve_list:
-        accessor = item.accessor
-        if ( accessor in context.scene.blidge.accessor_list ) == False:
-            new_item = context.scene.blidge.accessor_list.add()
-            new_item.accessor = item.accessor
+    global _updating_fcurve_accessor
+
+    # 既に更新中の場合は何もしない（無限再帰を防ぐ）
+    if _updating_fcurve_accessor:
+        return
+
+    _updating_fcurve_accessor = True
+    try:
+        context.scene.blidge.accessor_list.clear()
+        for item in context.scene.blidge.fcurve_list:
+            accessor = item.accessor
+            if ( accessor in context.scene.blidge.accessor_list ) == False:
+                new_item = context.scene.blidge.accessor_list.add()
+                new_item.accessor = item.accessor
+    finally:
+        _updating_fcurve_accessor = False
 
     # default animation
 
