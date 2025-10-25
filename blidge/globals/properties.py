@@ -50,6 +50,29 @@ class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
 class BLidgeLightProperty(bpy.types.PropertyGroup):
     shadow_map: bpy.props.BoolProperty(default=False)
 
+class BLidgeCustomProperty(bpy.types.PropertyGroup):
+    """BLidge管理下のカスタムプロパティ"""
+    name: bpy.props.StringProperty(
+        name="名前",
+        description="カスタムプロパティの名前",
+        default="custom_property"
+    )
+
+    prop_type: bpy.props.EnumProperty(
+        name="型",
+        items=[
+            ('FLOAT', 'Float', '浮動小数点数'),
+            ('INT', 'Int', '整数'),
+            ('BOOL', 'Bool', 'ブール値'),
+        ],
+        default='FLOAT'
+    )
+
+    # 実際の値
+    value_float: bpy.props.FloatProperty(name="値", default=0.0)
+    value_int: bpy.props.IntProperty(name="値", default=0)
+    value_bool: bpy.props.BoolProperty(name="値", default=False)
+
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
         name="名前",
@@ -85,6 +108,8 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
+    custom_property_list: bpy.props.CollectionProperty(type=BLidgeCustomProperty)
+    custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
 
@@ -95,6 +120,7 @@ classes = [
     BLidgeLightProperty,
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
+    BLidgeCustomProperty,
     BLidgeAnimationProperty,
     BLidgeObjectProperty,
 ]

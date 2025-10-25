@@ -48,6 +48,27 @@ class ObjectParser:
             'visible': not obj.hide_render,
         }
 
+        # カスタムプロパティ
+        custom_property_list = obj.blidge.custom_property_list
+        if len(custom_property_list) > 0:
+            object_data['custom_properties'] = {}
+
+            for custom_prop in custom_property_list:
+                # 値を取得
+                if custom_prop.prop_type == 'FLOAT':
+                    value = custom_prop.value_float
+                elif custom_prop.prop_type == 'INT':
+                    value = custom_prop.value_int
+                elif custom_prop.prop_type == 'BOOL':
+                    value = custom_prop.value_bool
+                else:
+                    continue
+
+                object_data['custom_properties'][custom_prop.name] = {
+                    'type': custom_prop.prop_type.lower(),
+                    'value': value
+                }
+
         # アニメーション
         animation_list = obj.blidge.animation_list
         if len(animation_list) > 0:

@@ -91,3 +91,42 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
         # 作成ボタン
         animation_controls = box_animation.row()
         animation_controls.operator("blidge.object_animation_create", text='Create', icon="PLUS")
+
+        # custom properties (折りたたみ可能、animationsの外の下)
+        box_custom = layout.box()
+
+        # ヘッダー行（クリックで展開/折りたたみ）
+        header_row = box_custom.row()
+        icon = 'DOWNARROW_HLT' if object.blidge.custom_properties_expanded else 'RIGHTARROW'
+        header_row.prop(object.blidge, "custom_properties_expanded",
+                       text="Custom Properties",
+                       icon=icon,
+                       emboss=False)
+
+        # 展開されている場合のみ内容を表示
+        if object.blidge.custom_properties_expanded:
+            # カスタムプロパティリスト表示
+            custom_property_list = object.blidge.custom_property_list
+            for i, item in enumerate(custom_property_list):
+                item_row = box_custom.row(align=True)
+
+                # 削除ボタン
+                ot_remove = item_row.operator("blidge.remove_custom_property", text='', icon='X', emboss=False)
+                ot_remove.item_index = i
+
+                # プロパティ名
+                item_row.label(text=item.name, icon='DOT')
+
+                # 型表示
+                item_row.label(text=f"({item.prop_type})")
+
+                # 値の編集
+                if item.prop_type == 'FLOAT':
+                    item_row.prop(item, 'value_float', text='')
+                elif item.prop_type == 'INT':
+                    item_row.prop(item, 'value_int', text='')
+                elif item.prop_type == 'BOOL':
+                    item_row.prop(item, 'value_bool', text='')
+
+            # 追加ボタン
+            box_custom.operator("blidge.add_custom_property", text='カスタムプロパティを追加', icon="ADD")
