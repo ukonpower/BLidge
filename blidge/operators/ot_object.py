@@ -46,12 +46,35 @@ class BLIDGE_OT_AddCustomProperty(Operator):
                 self.report({'WARNING'}, f"プロパティ '{self.prop_name}' は既に存在します")
                 return {'CANCELLED'}
 
-        # BLidgeのカスタムプロパティとして追加
+        # カスタムプロパティを実際にオブジェクトに追加
+        if self.prop_type == 'FLOAT':
+            obj[self.prop_name] = 0.0
+        elif self.prop_type == 'INT':
+            obj[self.prop_name] = 0
+        elif self.prop_type == 'BOOL':
+            obj[self.prop_name] = False
+
+        # IDプロパティのメタデータを設定（アニメーション可能にする）
+        id_props = obj.id_properties_ui(self.prop_name)
+        if self.prop_type == 'FLOAT':
+            id_props.update(min=-1000000.0, max=1000000.0, soft_min=-100.0, soft_max=100.0)
+        elif self.prop_type == 'INT':
+            id_props.update(min=-1000000, max=1000000, soft_min=-100, soft_max=100)
+
+        # 現在のフレームでキーフレームを挿入
+        current_frame = context.scene.frame_current
+        try:
+            obj.keyframe_insert(data_path=f'["{self.prop_name}"]', frame=current_frame)
+        except Exception as e:
+            self.report({'ERROR'}, f"キーフレーム挿入エラー: {str(e)}")
+            return {'CANCELLED'}
+
+        # BLidgeのカスタムプロパティリストに追加
         item = obj.blidge.custom_property_list.add()
         item.name = self.prop_name
         item.prop_type = self.prop_type
 
-        self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' を追加しました")
+        self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' を追加し、キーフレームを挿入しました")
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -188,111 +211,113 @@ class BLIDGE_OT_AddFCurveToAccessor(Operator):
     )
 
     def execute(self, context):
-        print("=== BLIDGE_OT_AddFCurveToAccessor: execute開始 ===")
-
         obj = context.object
         scene = context.scene
 
-        print(f"  オブジェクト: {obj.name if obj else 'None'}")
-        print(f"  アクセサー: {self.accessor}")
-        print(f"  ターゲット軸: {self.target_axis}")
-        print(f"  プロパティ名: {self.prop_name}")
-        print(f"  プロパティ型: {self.prop_type}")
-
         if not obj:
-            print("  エラー: オブジェクトが選択されていません")
             self.report({'ERROR'}, "オブジェクトが選択されていません")
             return {'CANCELLED'}
 
         # プロパティ名の検証
-        print("  ステップ1: プロパティ名の検証")
         if not self.prop_name or self.prop_name.strip() == "":
-            print("  エラー: プロパティ名が空です")
             self.report({'ERROR'}, "プロパティ名を入力してください")
             return {'CANCELLED'}
 
         # 既に存在するかチェック
-        print("  ステップ2: 既存プロパティのチェック")
         for item in obj.blidge.custom_property_list:
             if item.name == self.prop_name:
-                print(f"  エラー: プロパティ '{self.prop_name}' は既に存在します")
                 self.report({'WARNING'}, f"プロパティ '{self.prop_name}' は既に存在します")
                 return {'CANCELLED'}
 
         # 指定された軸が既に使用されていないか確認
-        print("  ステップ3: 軸の使用状況チェック")
         for fc in scene.blidge.fcurve_list:
             if fc.accessor == self.accessor and fc.axis == self.target_axis:
-                print(f"  エラー: 軸 [{self.target_axis.upper()}] は既に使用されています")
                 self.report({'ERROR'}, f"軸 [{self.target_axis.upper()}] は既に使用されています")
                 return {'CANCELLED'}
 
-        # カスタムプロパティを追加
-        print("  ステップ4: カスタムプロパティを追加")
+        # BLidgeメタデータにカスタムプロパティを追加
         try:
             custom_prop = obj.blidge.custom_property_list.add()
-            print("    custom_property_list.add() 成功")
             custom_prop.name = self.prop_name
-            print(f"    name設定: {custom_prop.name}")
             custom_prop.prop_type = self.prop_type
-            print(f"    prop_type設定: {custom_prop.prop_type}")
+            
+            # デフォルト値を設定
+            if self.prop_type == 'FLOAT':
+                custom_prop.value_float = 0.0
+            elif self.prop_type == 'INT':
+                custom_prop.value_int = 0
+            elif self.prop_type == 'BOOL':
+                custom_prop.value_bool = False
+                
         except Exception as e:
-            print(f"  エラー: カスタムプロパティ追加失敗: {e}")
-            self.report({'ERROR'}, f"カスタムプロパティ追加失敗: {e}")
+            self.report({'ERROR'}, f"BLidgeメタデータ追加失敗: {e}")
+            return {'CANCELLED'}
+
+        # BLidgeカスタムプロパティにキーフレームを挿入
+        try:
+            current_frame = scene.frame_current
+            custom_prop_index = len(obj.blidge.custom_property_list) - 1
+            
+            # プロパティタイプに応じてdata_pathを設定
+            if self.prop_type == 'FLOAT':
+                data_path = f'blidge.custom_property_list[{custom_prop_index}].value_float'
+            elif self.prop_type == 'INT':
+                data_path = f'blidge.custom_property_list[{custom_prop_index}].value_int'
+            elif self.prop_type == 'BOOL':
+                data_path = f'blidge.custom_property_list[{custom_prop_index}].value_bool'
+            
+            obj.keyframe_insert(data_path=data_path, frame=current_frame)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.report({'ERROR'}, f"キーフレーム挿入失敗: {e}")
+            return {'CANCELLED'}
+
+        # 作成されたF-CurveからIDを取得
+        fcurve_id = None
+        try:
+            from ..utils.fcurve_manager import get_fcurve_id
+            
+            # オブジェクトのアニメーションデータからF-Curveを探す
+            if obj.animation_data and obj.animation_data.action:
+                for fcurve in obj.animation_data.action.fcurves:
+                    if fcurve.data_path == data_path:
+                        fcurve_id = get_fcurve_id(fcurve, False)
+                        break
+            
+            if not fcurve_id:
+                self.report({'ERROR'}, "F-Curveが見つかりません")
+                return {'CANCELLED'}
+                
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.report({'ERROR'}, f"F-Curve ID取得失敗: {e}")
             return {'CANCELLED'}
 
         # F-Curveメタデータを作成
-        print("  ステップ5: F-Curveメタデータを作成")
         try:
-            fcurve_id = f"{obj.name}_custom_{self.prop_name}"
-            print(f"    F-Curve ID: {fcurve_id}")
-
             fcurve = scene.blidge.fcurve_list.add()
-            print("    fcurve_list.add() 成功")
-
-            # プロパティを設定（updateFCurveAccessorは無限再帰ガードで保護されている）
-            print("    プロパティ設定開始")
             fcurve.id = fcurve_id
-            print(f"    id設定: {fcurve.id}")
-
             fcurve.axis = self.target_axis
-            print(f"    axis設定: {fcurve.axis}")
-
-            # accessorを設定（updateコールバックが呼ばれる）
-            print(f"    accessor設定開始: {self.accessor}")
             fcurve.accessor = self.accessor
-            print(f"    accessor設定完了: {fcurve.accessor}")
 
-            print("    F-Curve作成完了")
         except Exception as e:
-            print(f"  エラー: F-Curve作成失敗: {e}")
             import traceback
             traceback.print_exc()
             self.report({'ERROR'}, f"F-Curve作成失敗: {e}")
             return {'CANCELLED'}
 
-        print("  ステップ6: 完了")
         self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' とF-Curve [{self.target_axis.upper()}] を追加しました")
-        print("=== BLIDGE_OT_AddFCurveToAccessor: execute完了 ===")
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        print("=== BLIDGE_OT_AddFCurveToAccessor: invoke開始 ===")
-        print(f"  アクセサー: {self.accessor}")
-        print(f"  ターゲット軸: {self.target_axis}")
-        print("  ダイアログを表示")
-        result = context.window_manager.invoke_props_dialog(self)
-        print(f"  invoke結果: {result}")
-        return result
+        return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
-        print("=== BLIDGE_OT_AddFCurveToAccessor: draw開始 ===")
-        try:
-            layout = self.layout
-            layout.label(text=f"アクセサー: {self.accessor}")
-            layout.label(text=f"軸: [{self.target_axis.upper()}]")
-            layout.prop(self, "prop_name")
-            layout.prop(self, "prop_type")
-            print("  draw完了")
-        except Exception as e:
-            print(f"  draw エラー: {e}")
+        layout = self.layout
+        layout.label(text=f"アクセサー: {self.accessor}")
+        layout.label(text=f"軸: [{self.target_axis.upper()}]")
+        layout.prop(self, "prop_name")
+        layout.prop(self, "prop_type")
