@@ -51,6 +51,11 @@ class BLidgeLightProperty(bpy.types.PropertyGroup):
     shadow_map: bpy.props.BoolProperty(default=False)
 
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(
+        name="名前",
+        description="Uniformとして使用する際の変数名",
+        default=''
+    )
     accessor: bpy.props.StringProperty(default='')
     editable: bpy.props.BoolProperty(default=True)
     as_uniform: bpy.props.BoolProperty(

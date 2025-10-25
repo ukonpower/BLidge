@@ -60,6 +60,38 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         box_animation = layout.box()
         box_animation.label(text="Animations", icon='GRAPH')
-        box_animation.template_list("BLIDGE_UL_Animations", "The_List", object.blidge, "animation_list", scene.blidge, "object_animation_list_index")
+
+        # 各アニメーションアイテムをカスタム描画
+        animation_list = object.blidge.animation_list
+        for i, item in enumerate(animation_list):
+            # アイテム全体のボックス
+            item_box = box_animation.box()
+
+            # メイン行
+            main_row = item_box.row(align=True)
+
+            # 削除ボタン（左端に配置）
+            ot_remove = main_row.operator("blidge.object_animation_remove", text='', icon='X', emboss=False)
+            ot_remove.item_index = i
+
+            # アクセサー選択 (editableの場合のみ操作可)
+            accessor_col = main_row.column(align=True)
+            accessor_col.enabled = item.editable
+            accessor_col.prop_search(item, 'accessor', scene.blidge, 'accessor_list', text='', icon="FCURVE")
+
+            # as_uniformボタン (右端に配置、常に操作可能)
+            uniform_col = main_row.column(align=True)
+            if item.as_uniform:
+                uniform_col.prop(item, 'as_uniform', text='', icon='SHADING_TEXTURE', emboss=True)
+            else:
+                uniform_col.prop(item, 'as_uniform', text='', icon='SHADING_TEXTURE', emboss=False)
+
+            # as_uniformがTrueの場合、下にUniform設定を展開
+            if item.as_uniform:
+                sub_row = item_box.row(align=True)
+                sub_row.label(text='', icon='BLANK1')
+                sub_row.prop(item, 'name', text='Uniform Name', icon='CUBE')
+
+        # 作成ボタン
         animation_controls = box_animation.row()
         animation_controls.operator("blidge.object_animation_create", text='Create', icon="PLUS")

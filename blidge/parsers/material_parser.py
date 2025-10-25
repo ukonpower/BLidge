@@ -32,6 +32,8 @@ class MaterialParser:
 
         for uni in uniform_items:
             if uni.accessor in animation_data.get('dict', {}):
-                uniforms[uni.accessor] = animation_data['dict'][uni.accessor]
+                # nameが設定されている場合はそれを使用、なければaccessorを使用
+                key = uni.name if uni.name else uni.accessor
+                uniforms[key] = animation_data['dict'][uni.accessor]
 
         return {'uniforms': uniforms} if len(uniforms) > 0 else None

@@ -207,7 +207,9 @@ class SceneParser:
 
             for uni in uniform_items:
                 if uni.accessor in self.animation_data["dict"]:
-                    object_data['uniforms'][uni.accessor] = self.animation_data["dict"][uni.accessor]
+                    # nameが設定されている場合はそれを使用、なければaccessorを使用
+                    key = uni.name if uni.name else uni.accessor
+                    object_data['uniforms'][key] = self.animation_data["dict"][uni.accessor]
 
         return object_data
 
