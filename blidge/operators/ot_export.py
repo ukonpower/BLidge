@@ -44,22 +44,23 @@ class BLIDGE_OT_GLTFExport(Operator):
 
     @classmethod
     @persistent
-    def on_save(cls = None, scene: bpy.types.Scene = None):
+    def on_save(cls=None, scene: bpy.types.Scene=None):
         scene = bpy.context.scene
         if scene.blidge.export_gltf_export_on_save:
             cls.export()
 
+
 class BLIDGE_OT_SceneExport(Operator):
     bl_idname = 'blidge.export_scene'
     bl_label = 'Accept'
-    
+
     def execute(self, context):
         scene = bpy.context.scene
         data = SceneParser().get_scene()
         path = bpy.path.abspath(scene.blidge.export_scene_data_path)
 
-        with open( path, mode='wt', encoding='utf-8') as file:
-            json.dump( json.loads( json.dumps(data), parse_float=lambda x: round(float(x), 3) ), file, ensure_ascii=False )
-            
+        with open(path, mode='wt', encoding='utf-8') as file:
+            json.dump(json.loads(json.dumps(data), parse_float=lambda x: round(float(x), 3)), file, ensure_ascii=False)
+
         return {'FINISHED'}
 

@@ -2,10 +2,8 @@ import bpy
 from bpy.types import AddonPreferences
 import sys
 import subprocess
-import os
 
-from pathlib import Path
-from .. import Globals
+from .config import Globals
 
 class BLIDGE_OT_install_dependencies(bpy.types.Operator):
 	bl_idname = "blidge.install_dependencies"

@@ -1,10 +1,8 @@
 import bpy
 
 from ..utils.gltf import get_gltf_presets
-from ..ui.ui_list import (updateFCurveAccessor)
+from ..ui.ui_list import updateFCurveAccessor
 
-class BLidgeNameProperty(bpy.types.PropertyGroup):
-	name: bpy.props.StringProperty(default='')
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
@@ -51,7 +49,7 @@ class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
     radius: bpy.props.FloatProperty(default=1)
 
 class BLidgeLightProperty(bpy.types.PropertyGroup):
-    shadowMap: bpy.props.BoolProperty(default=False)
+    shadow_map: bpy.props.BoolProperty(default=False)
 
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(default='')
