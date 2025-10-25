@@ -52,13 +52,8 @@ class BLidgeLightProperty(bpy.types.PropertyGroup):
     shadow_map: bpy.props.BoolProperty(default=False)
 
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(default='')
     accessor: bpy.props.StringProperty(default='')
     editable: bpy.props.BoolProperty(default=True)
-
-class BLidgeMaterialProperty(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(default='')
-    uniform_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
 
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
     blidgeClass: bpy.props.StringProperty(description="blidge object name", default="")
@@ -82,7 +77,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
-    material: bpy.props.PointerProperty( type=BLidgeMaterialProperty)
+    uniform_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
 
@@ -94,7 +89,6 @@ classes = [
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
     BLidgeAnimationProperty,
-    BLidgeMaterialProperty,
     BLidgeObjectProperty,
 ]
 

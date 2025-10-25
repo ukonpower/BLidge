@@ -54,18 +54,15 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         layout.prop(object.blidge, "render_virtual_mesh", text="Render virtual mesh")
 
-        # material
-
-        box_material = layout.box()
-        box_material.label(text="Material", icon='MATERIAL')
-        box_material.prop(object.blidge.material, 'name', text="Name")
+        # uniforms
 
         scene = bpy.context.scene
 
-        box_material.label(text="Uniforms", icon='MESH_CUBE')
-        box_material.template_list("BLIDGE_UL_Uniforms", "The_List", object.blidge.material, "uniform_list", scene.blidge, "object_uniform_list_index")
+        box_uniforms = layout.box()
+        box_uniforms.label(text="Uniforms", icon='MESH_CUBE')
+        box_uniforms.template_list("BLIDGE_UL_Uniforms", "The_List", object.blidge, "uniform_list", scene.blidge, "object_uniform_list_index")
 
-        uniform_controls = box_material.row()
+        uniform_controls = box_uniforms.row()
         uniform_controls.operator("blidge.object_uniform_create", text='Create', icon="PLUS")
 
         box_animation = layout.box()

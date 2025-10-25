@@ -13,8 +13,7 @@ class BLIDGE_OT_ObjectUniformCreate(Operator):
 
     def execute(self, context):
         object = context.object
-        item = object.blidge.material.uniform_list.add()
-        item.name = '<name>'
+        item = object.blidge.uniform_list.add()
 
         return {'FINISHED'}
 
@@ -28,7 +27,7 @@ class BLIDGE_OT_ObjectUniformRemove(Operator):
 
     def execute(self, context):
         object = context.object
-        object.blidge.material.uniform_list.remove(self.item_index)
+        object.blidge.uniform_list.remove(self.item_index)
 
         return {'FINISHED'}
 
@@ -46,7 +45,6 @@ class BLIDGE_OT_ObjectAnimationCreate(Operator):
     def execute(self, context):
         object = context.object
         item = object.blidge.animation_list.add()
-        item.name = '<name>'
 
         return {'FINISHED'}
 

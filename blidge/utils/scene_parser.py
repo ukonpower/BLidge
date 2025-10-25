@@ -197,22 +197,16 @@ class SceneParser:
                     "blend": light.spot_blend
                 })
             
-        # material
+        # uniforms
 
-        material = object.blidge.material
+        uniform_list = object.blidge.uniform_list
 
-        if material.name != '' or len( material.uniform_list ) > 0:
-            object_data['material'] = {}
+        if len(uniform_list) > 0:
+            object_data['uniforms'] = {}
 
-        if material.name != '':
-            object_data['material']['name'] = material.name
-
-        if len( material.uniform_list ) > 0:
-            object_data['material']['uniforms'] = {}
-
-        for uni in material.uniform_list:
-            if( uni.accessor in self.animation_data["dict"] ):
-                object_data['material']['uniforms'][uni.name] = self.animation_data["dict"][uni.accessor]
+            for uni in uniform_list:
+                if uni.accessor in self.animation_data["dict"]:
+                    object_data['uniforms'][uni.accessor] = self.animation_data["dict"][uni.accessor]
 
         return object_data
 
