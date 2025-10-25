@@ -88,6 +88,25 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
                 sub_row.label(text='', icon='BLANK1')
                 sub_row.prop(item, 'name', text='Uniform Name', icon='CUBE')
 
+            # アクセサーに紐づくF-Curveリストを表示
+            if item.accessor:
+                # このアクセサーに紐づくF-Curveを検索
+                fcurves_with_accessor = [fc for fc in scene.blidge.fcurve_list if fc.accessor == item.accessor]
+
+                if fcurves_with_accessor:
+                    # F-Curveリストのヘッダー
+                    fcurve_header_row = item_box.row(align=True)
+                    fcurve_header_row.label(text='', icon='BLANK1')
+                    fcurve_header_row.label(text=f'F-Curves ({len(fcurves_with_accessor)})', icon='GRAPH')
+
+                    # 各F-Curveを表示
+                    for fc in fcurves_with_accessor:
+                        fcurve_row = item_box.row(align=True)
+                        fcurve_row.label(text='', icon='BLANK1')
+                        fcurve_row.label(text='', icon='BLANK1')
+                        fcurve_row.label(text=fc.id, icon='FCURVE_SNAPSHOT')
+                        fcurve_row.label(text=f'[{fc.axis.upper()}]')
+
         # 作成ボタン
         animation_controls = box_animation.row()
         animation_controls.operator("blidge.object_animation_create", text='Create', icon="PLUS")
