@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.scene_parser import SceneParser
+from ..parsers import SceneParser
 from ..utils.ws_server import WebSocketServer
 
 class BLIDGE_OT_Sync(bpy.types.Operator):
@@ -60,7 +60,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
 
     @classmethod
     def get_animation(cls):
-        return SceneParser().get_scene()
+        return SceneParser().parse_scene()
 
     @classmethod
     def on_change_frame(cls, scene: bpy.types.Scene, any):

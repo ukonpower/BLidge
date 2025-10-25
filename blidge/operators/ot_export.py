@@ -4,7 +4,7 @@ from bpy.app.handlers import persistent
 
 import json
 
-from ..utils.scene_parser import SceneParser
+from ..parsers import SceneParser
 from ..operators.ot_sync import BLIDGE_OT_Sync
 
 
@@ -56,7 +56,7 @@ class BLIDGE_OT_SceneExport(Operator):
 
     def execute(self, context):
         scene = bpy.context.scene
-        data = SceneParser().get_scene()
+        data = SceneParser().parse_scene()
         path = bpy.path.abspath(scene.blidge.export_scene_data_path)
 
         with open(path, mode='wt', encoding='utf-8') as file:
