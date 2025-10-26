@@ -20,8 +20,8 @@ class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	)
 	axis: bpy.props.EnumProperty(
 		name="axis",
-        description="value axis",
-        items=[
+		description="value axis",
+		items=[
 			( "x", "X", "" ),
 			( "y", "Y", "" ),
 			( "z", "Z", "" ),

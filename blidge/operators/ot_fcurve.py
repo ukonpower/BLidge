@@ -177,3 +177,71 @@ class BLIDGE_OT_FCurveAccessorClear(Operator):
                 break
 
         return {'FINISHED'}
+
+
+class BLIDGE_OT_FCurveAccessorAdd(Operator):
+	"""F-Curveに新しいアクセサを追加"""
+	bl_idname = 'blidge.fcurve_accessor_add'
+	bl_label = "アクセサを追加"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
+	animation_id: bpy.props.EnumProperty(
+		name="Animation項目",
+		description="紐づけるAnimation項目を選択",
+		items=get_animation_items_for_enum
+	)
+	fcurve_axis: bpy.props.StringProperty(name="Curve Axis", default="")
+	target_object: bpy.props.StringProperty(name="Target Object", default="")
+
+	def invoke(self, context, event):
+		# デフォルトアニメーションタイプを検出
+		anim_type = detect_default_animation_type(self.fcurve_id)
+
+		if anim_type and self.target_object:
+			# position/rotation/scale/hideの場合は自動作成して即実行
+			obj = context.scene.objects.get(self.target_object)
+			if obj:
+				self.animation_id = get_or_create_default_animation(obj, anim_type)
+				return self.execute(context)
+
+		# それ以外の場合はダイアログを表示
+		return context.window_manager.invoke_props_dialog(self)
+
+	def draw(self, context):
+		layout = self.layout
+		layout.prop(self, "animation_id")
+		layout.prop(self, "fcurve_axis", text="Axis")
+
+	def execute(self, context):
+		if self.animation_id == "NONE":
+			self.report({'WARNING'}, "Animation項目を選択してください")
+			return {'CANCELLED'}
+
+		# fcurve_listに新しいエントリを追加
+		item = context.scene.blidge.fcurve_list.add()
+		item.id = self.fcurve_id
+		item.animation_id = self.animation_id
+		item.axis = self.fcurve_axis
+
+		return {'FINISHED'}
+
+
+class BLIDGE_OT_FCurveAccessorRemove(Operator):
+	"""F-Curveからアクセサを削除"""
+	bl_idname = 'blidge.fcurve_accessor_remove'
+	bl_label = "アクセサを削除"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
+	animation_id: bpy.props.StringProperty(name="Animation ID", default="")
+
+	def execute(self, context):
+		# fcurve_listから該当するエントリを削除
+		# 同じidとanimation_idを持つ最初の項目を削除
+		for index, curve in enumerate(context.scene.blidge.fcurve_list):
+			if curve.id == self.fcurve_id and curve.animation_id == self.animation_id:
+				context.scene.blidge.fcurve_list.remove(index)
+				break
+
+		return {'FINISHED'}
