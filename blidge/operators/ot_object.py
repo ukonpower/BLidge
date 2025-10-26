@@ -47,35 +47,20 @@ class BLIDGE_OT_AddCustomProperty(Operator):
                 self.report({'WARNING'}, f"プロパティ '{self.prop_name}' は既に存在します")
                 return {'CANCELLED'}
 
-        # カスタムプロパティを実際にオブジェクトに追加
-        if self.prop_type == 'FLOAT':
-            obj[self.prop_name] = 0.0
-        elif self.prop_type == 'INT':
-            obj[self.prop_name] = 0
-        elif self.prop_type == 'BOOL':
-            obj[self.prop_name] = False
-
-        # IDプロパティのメタデータを設定（アニメーション可能にする）
-        id_props = obj.id_properties_ui(self.prop_name)
-        if self.prop_type == 'FLOAT':
-            id_props.update(min=-1000000.0, max=1000000.0, soft_min=-100.0, soft_max=100.0)
-        elif self.prop_type == 'INT':
-            id_props.update(min=-1000000, max=1000000, soft_min=-100, soft_max=100)
-
-        # 現在のフレームでキーフレームを挿入
-        current_frame = context.scene.frame_current
-        try:
-            obj.keyframe_insert(data_path=f'["{self.prop_name}"]', frame=current_frame)
-        except Exception as e:
-            self.report({'ERROR'}, f"キーフレーム挿入エラー: {str(e)}")
-            return {'CANCELLED'}
-
         # BLidgeのカスタムプロパティリストに追加
         item = obj.blidge.custom_property_list.add()
         item.name = self.prop_name
         item.prop_type = self.prop_type
 
-        self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' を追加し、キーフレームを挿入しました")
+        # デフォルト値を設定
+        if self.prop_type == 'FLOAT':
+            item.value_float = 0.0
+        elif self.prop_type == 'INT':
+            item.value_int = 0
+        elif self.prop_type == 'BOOL':
+            item.value_bool = False
+
+        self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' を追加しました")
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -97,6 +82,7 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
 
     def execute(self, context):
         obj = context.object
+        scene = context.scene
 
         if not obj:
             self.report({'ERROR'}, "オブジェクトが選択されていません")
@@ -106,8 +92,51 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
             self.report({'ERROR'}, "無効なインデックスです")
             return {'CANCELLED'}
 
-        # プロパティ名を取得してからリストから削除
+        # プロパティ名を取得
         prop_name = obj.blidge.custom_property_list[self.item_index].name
+        prop_type = obj.blidge.custom_property_list[self.item_index].prop_type
+        
+        # data_pathを構築
+        if prop_type == 'FLOAT':
+            data_path = f'blidge.custom_property_list[{self.item_index}].value_float'
+        elif prop_type == 'INT':
+            data_path = f'blidge.custom_property_list[{self.item_index}].value_int'
+        elif prop_type == 'BOOL':
+            data_path = f'blidge.custom_property_list[{self.item_index}].value_bool'
+        
+        # 関連するF-Curveを削除
+        if obj.animation_data and obj.animation_data.action:
+            fcurves_to_remove = []
+            for fcurve in obj.animation_data.action.fcurves:
+                if fcurve.data_path == data_path:
+                    fcurves_to_remove.append(fcurve)
+            
+            for fcurve in fcurves_to_remove:
+                obj.animation_data.action.fcurves.remove(fcurve)
+        
+        # 関連するfcurve_listエントリを削除
+        # (このカスタムプロパティのF-Curveに紐づくアクセサーを削除)
+        from ..utils.fcurve_manager import get_fcurve_id
+        fcurve_ids_to_remove = []
+        
+        # まず削除対象のF-Curve IDを特定
+        if obj.animation_data and obj.animation_data.action:
+            for fcurve in obj.animation_data.action.fcurves:
+                if fcurve.data_path == data_path:
+                    fcurve_id = get_fcurve_id(fcurve, False)
+                    fcurve_ids_to_remove.append(fcurve_id)
+        
+        # fcurve_listから該当するエントリを削除
+        indices_to_remove = []
+        for i, fc in enumerate(scene.blidge.fcurve_list):
+            if fc.id in fcurve_ids_to_remove:
+                indices_to_remove.append(i)
+        
+        # 逆順で削除(インデックスのずれを防ぐ)
+        for i in sorted(indices_to_remove, reverse=True):
+            scene.blidge.fcurve_list.remove(i)
+        
+        # リストから削除
         obj.blidge.custom_property_list.remove(self.item_index)
 
         self.report({'INFO'}, f"カスタムプロパティ '{prop_name}' を削除しました")
@@ -306,7 +335,7 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
             if obj.animation_data and obj.animation_data.action:
                 for fcurve in obj.animation_data.action.fcurves:
                     if fcurve.data_path == data_path:
-                        fcurve_id = get_fcurve_id(fcurve, False)
+                        fcurve_id = get_fcurve_id(fcurve, axis=True)
                         break
             
             if not fcurve_id:
