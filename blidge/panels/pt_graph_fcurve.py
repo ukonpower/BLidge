@@ -45,10 +45,18 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
         layout = self.layout
         layout.label(text="F-Curve to Animation")
 
+        # アクティブなオブジェクトを取得
+        active_obj = context.active_object
+
         for fcurve in bpy.context.selected_editable_fcurves:
             fcurve_id = get_fcurve_id(fcurve, axis=True)
             box = layout.box()
-            box.label(text=fcurve_id, icon='FCURVE')
+
+            # F-CurveのIDにオブジェクト名が含まれている場合、それを表示
+            if active_obj:
+                box.label(text=f"{active_obj.name}: {fcurve_id}", icon='FCURVE')
+            else:
+                box.label(text=fcurve_id, icon='FCURVE')
 
             curve_data = None
 
@@ -96,6 +104,8 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                 box.label(text="Animation項目に紐づけてください", icon='INFO')
                 op_create = box.operator( BLIDGE_OT_FCurveAccessorCreate.bl_idname, text="Create", icon='PLUS' )
                 op_create.fcurve_id = fcurve_id
-                # animation_idはダイアログで選択するので、ここでは設定しない
                 op_create.fcurve_axis = get_fcurve_axis( fcurve_id, 'xyzw'[fcurve.array_index] )
+                # アクティブなオブジェクトを渡す
+                if active_obj:
+                    op_create.target_object = active_obj.name
         

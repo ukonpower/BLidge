@@ -1,7 +1,67 @@
 import bpy
 from bpy.types import Operator
+import uuid
 
 from ..utils.fcurve_manager import get_fcurve_id
+
+
+def detect_default_animation_type(fcurve_id):
+    """F-Curve IDからデフォルトアニメーションタイプを検出"""
+    if 'location' in fcurve_id.lower():
+        return 'position'
+    elif 'rotation_euler' in fcurve_id.lower():
+        return 'rotation'
+    elif 'scale' in fcurve_id.lower():
+        return 'scale'
+    elif 'hide_render' in fcurve_id.lower():
+        return 'hide'
+    return None
+
+
+def get_or_create_default_animation(obj, anim_type):
+    """オブジェクトのデフォルトアニメーション項目を取得または作成
+
+    Args:
+        obj: Blenderオブジェクト
+        anim_type: 'position', 'rotation', 'scale', 'hide'
+
+    Returns:
+        animation項目のID
+    """
+    # 既存のanimation項目を検索(editableがFalseでnameが一致するもの)
+    for anim in obj.blidge.animation_list:
+        if not anim.editable and anim.name == anim_type:
+            return anim.id
+
+    # 存在しない場合は新規作成
+    anim = obj.blidge.animation_list.add()
+    anim.id = str(uuid.uuid4())
+    anim.name = anim_type
+    anim.editable = False
+
+    # 優先順位に基づいて適切な位置に挿入
+    # position, rotation, scale, hideの順
+    priority_order = ['position', 'rotation', 'scale', 'hide']
+    target_priority = priority_order.index(anim_type) if anim_type in priority_order else len(priority_order)
+
+    # 新しく追加したアイテムのインデックス
+    new_index = len(obj.blidge.animation_list) - 1
+
+    # 挿入位置を見つける
+    insert_position = 0
+    for i, existing_anim in enumerate(obj.blidge.animation_list):
+        if existing_anim == anim:
+            continue
+        if not existing_anim.editable and existing_anim.name in priority_order:
+            existing_priority = priority_order.index(existing_anim.name)
+            if existing_priority < target_priority:
+                insert_position = i + 1
+
+    # 適切な位置に移動
+    if insert_position != new_index:
+        obj.blidge.animation_list.move(new_index, insert_position)
+
+    return anim.id
 
 
 def get_animation_items_for_enum(self, context):
@@ -34,8 +94,20 @@ class BLIDGE_OT_FCurveAccessorCreate(Operator):
         items=get_animation_items_for_enum
     )
     fcurve_axis: bpy.props.StringProperty(name="Curve Axis", default="")
+    target_object: bpy.props.StringProperty(name="Target Object", default="")
 
     def invoke(self, context, event):
+        # デフォルトアニメーションタイプを検出
+        anim_type = detect_default_animation_type(self.fcurve_id)
+
+        if anim_type and self.target_object:
+            # position/rotation/scale/hideの場合は自動作成して即実行
+            obj = context.scene.objects.get(self.target_object)
+            if obj:
+                self.animation_id = get_or_create_default_animation(obj, anim_type)
+                return self.execute(context)
+
+        # それ以外の場合はダイアログを表示
         return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):

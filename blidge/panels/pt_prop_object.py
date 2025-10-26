@@ -80,9 +80,8 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             name_col.scale_x = 2.0
             name_col.prop(item, 'name', text='', emboss=item.editable, icon='ANIM_DATA')
 
-            # 削除ボタン (editableの場合のみ有効)
+            # 削除ボタン (常に有効)
             remove_col = header_row.column(align=True)
-            remove_col.enabled = item.editable
             ot_remove = remove_col.operator("blidge.object_animation_remove", text='', icon='TRASH', emboss=False)
             ot_remove.item_index = i
 
