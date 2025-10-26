@@ -96,6 +96,11 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                     # Axis設定
                     accessor_row.prop(accessor, 'axis', text='')
 
+                    # 変更ボタン
+                    op_change = accessor_row.operator('blidge.fcurve_accessor_change', text="", icon='FILE_REFRESH')
+                    op_change.fcurve_id = fcurve_id
+                    op_change.old_animation_id = accessor.animation_id
+
                     # 削除ボタン
                     op_delete = accessor_row.operator('blidge.fcurve_accessor_remove', text="", icon='X')
                     op_delete.fcurve_id = fcurve_id

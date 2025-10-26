@@ -195,17 +195,30 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 	target_object: bpy.props.StringProperty(name="Target Object", default="")
 
 	def invoke(self, context, event):
-		# デフォルトアニメーションタイプを検出
-		anim_type = detect_default_animation_type(self.fcurve_id)
+		# 既にこのF-Curveにアクセサが設定されているかチェック
+		existing_accessors = [curve for curve in context.scene.blidge.fcurve_list if curve.id == self.fcurve_id]
+		
+		if len(existing_accessors) == 0:
+			# まだ設定されていない場合
+			# デフォルトアニメーションタイプを検出
+			anim_type = detect_default_animation_type(self.fcurve_id)
+			
+			if anim_type and self.target_object:
+				obj = context.scene.objects.get(self.target_object)
+				if obj:
+					# position/rotation/scale/hideの場合は自動作成して即実行
+					# EnumPropertyを経由せずに直接animation_idを作成して実行
+					created_id = get_or_create_default_animation(obj, anim_type)
+					
+					# fcurve_listに新しいエントリを追加
+					item = context.scene.blidge.fcurve_list.add()
+					item.id = self.fcurve_id
+					item.animation_id = created_id
+					item.axis = self.fcurve_axis
+					
+					return {'FINISHED'}
 
-		if anim_type and self.target_object:
-			# position/rotation/scale/hideの場合は自動作成して即実行
-			obj = context.scene.objects.get(self.target_object)
-			if obj:
-				self.animation_id = get_or_create_default_animation(obj, anim_type)
-				return self.execute(context)
-
-		# それ以外の場合はダイアログを表示
+		# 既に設定がある場合、または通常の場合はダイアログを表示
 		return context.window_manager.invoke_props_dialog(self)
 
 	def draw(self, context):
@@ -243,5 +256,42 @@ class BLIDGE_OT_FCurveAccessorRemove(Operator):
 			if curve.id == self.fcurve_id and curve.animation_id == self.animation_id:
 				context.scene.blidge.fcurve_list.remove(index)
 				break
+
+		return {'FINISHED'}
+
+
+class BLIDGE_OT_FCurveAccessorChange(Operator):
+	"""F-Curveのアクセサのアニメーション項目を変更"""
+	bl_idname = 'blidge.fcurve_accessor_change'
+	bl_label = "アニメーション項目を変更"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
+	old_animation_id: bpy.props.StringProperty(name="Old Animation ID", default="")
+	new_animation_id: bpy.props.EnumProperty(
+		name="Animation項目",
+		description="紐づけるAnimation項目を選択",
+		items=get_animation_items_for_enum
+	)
+
+	def invoke(self, context, event):
+		return context.window_manager.invoke_props_dialog(self)
+
+	def draw(self, context):
+		layout = self.layout
+		layout.prop(self, "new_animation_id", text="新しいAnimation項目")
+
+	def execute(self, context):
+		if self.new_animation_id == "NONE":
+			self.report({'WARNING'}, "Animation項目を選択してください")
+			return {'CANCELLED'}
+
+		# fcurve_listから該当するエントリを探して変更
+		for curve in context.scene.blidge.fcurve_list:
+			if curve.id == self.fcurve_id and curve.animation_id == self.old_animation_id:
+				curve.animation_id = self.new_animation_id
+				break
+
+		context.area.tag_redraw()
 
 		return {'FINISHED'}
