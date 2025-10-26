@@ -18,17 +18,22 @@ class MaterialParser:
         Returns:
             ユニフォーム情報を含む辞書、またはNone
         """
-        uniform_list = obj.blidge.uniform_list
+        animation_list = obj.blidge.animation_list
+
+        # as_uniformがTrueのアニメーションのみを抽出
+        uniform_items = [item for item in animation_list if item.as_uniform]
 
         # ユニフォームがない場合はNone
-        if len(uniform_list) == 0:
+        if len(uniform_items) == 0:
             return None
 
         # ユニフォーム
         uniforms: Dict[str, Any] = {}
 
-        for uni in uniform_list:
-            if uni.accessor in animation_data.get('dict', {}):
-                uniforms[uni.accessor] = animation_data['dict'][uni.accessor]
+        for uni in uniform_items:
+            if uni.id and uni.id in animation_data.get('dict', {}):
+                # nameが設定されている場合はそれを使用、なければIDを使用
+                key = uni.name if uni.name else uni.id
+                uniforms[key] = animation_data['dict'][uni.id]
 
-        return {'uniforms': uniforms} if len(uniforms) > 0 else None
+        return uniforms if len(uniforms) > 0 else None

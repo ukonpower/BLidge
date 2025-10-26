@@ -1,17 +1,27 @@
 import bpy
+import uuid
 
 from ..utils.gltf import get_gltf_presets
-from ..ui.ui_list import updateFCurveAccessor
+
+
+def ensure_animation_id(self, context):
+    """アニメーションIDが空の場合、UUIDを自動生成"""
+    if not self.id:
+        self.id = str(uuid.uuid4())
 
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
 	id: bpy.props.StringProperty(default='')
-	accessor: bpy.props.StringProperty(default='',update=updateFCurveAccessor)
+	animation_id: bpy.props.StringProperty(
+		name="Animation ID",
+		description="紐づくアニメーション項目のID",
+		default=''
+	)
 	axis: bpy.props.EnumProperty(
 		name="axis",
-        description="value axis",
-        items=[
+		description="value axis",
+		items=[
 			( "x", "X", "" ),
 			( "y", "Y", "" ),
 			( "z", "Z", "" ),
@@ -32,9 +42,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
-    accessor_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
-    object_uniform_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
-    object_animation_list_index: bpy.props.IntProperty(name = "object uniform list index", default = 0)
+    object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=2)
@@ -51,12 +59,49 @@ class BLidgeGeometrySphereProperty(bpy.types.PropertyGroup):
 class BLidgeLightProperty(bpy.types.PropertyGroup):
     shadow_map: bpy.props.BoolProperty(default=False)
 
+class BLidgeCustomProperty(bpy.types.PropertyGroup):
+    """BLidge管理下のカスタムプロパティ"""
+    name: bpy.props.StringProperty(
+        name="名前",
+        description="カスタムプロパティの名前",
+        default="custom_property"
+    )
+
+    prop_type: bpy.props.EnumProperty(
+        name="型",
+        items=[
+            ('FLOAT', 'Float', '浮動小数点数'),
+            ('INT', 'Int', '整数'),
+            ('BOOL', 'Bool', 'ブール値'),
+        ],
+        default='FLOAT'
+    )
+
+    # 実際の値
+    value_float: bpy.props.FloatProperty(name="値", default=0.0)
+    value_int: bpy.props.IntProperty(name="値", default=0)
+    value_bool: bpy.props.BoolProperty(name="値", default=False)
+
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
-    accessor: bpy.props.StringProperty(default='')
+    id: bpy.props.StringProperty(
+        name="ID",
+        description="アニメーション項目の一意のID",
+        default='',
+        update=ensure_animation_id
+    )
+    name: bpy.props.StringProperty(
+        name="名前",
+        description="Uniformとして使用する際の変数名",
+        default=''
+    )
     editable: bpy.props.BoolProperty(default=True)
+    as_uniform: bpy.props.BoolProperty(
+        name="Uniformとして使用",
+        description="このアニメーションをマテリアルのUniformとして使用する",
+        default=False
+    )
 
 class BLidgeObjectProperty(bpy.types.PropertyGroup):
-    blidgeClass: bpy.props.StringProperty(description="blidge object name", default="")
     type: bpy.props.EnumProperty(
 		name="type",
         description="object type",
@@ -77,7 +122,8 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_plane: bpy.props.PointerProperty( type=BLidgeGeometryPlaneProperty)
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
-    uniform_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
+    custom_property_list: bpy.props.CollectionProperty(type=BLidgeCustomProperty)
+    custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
 
@@ -88,6 +134,7 @@ classes = [
     BLidgeLightProperty,
     BLidgeFCurveProperty,
     BLidgeControlsProperty,
+    BLidgeCustomProperty,
     BLidgeAnimationProperty,
     BLidgeObjectProperty,
 ]

@@ -41,15 +41,33 @@ class ObjectParser:
         # 基本データ
         object_data = {
             'name': obj.name,
-            'class': obj.blidge.blidgeClass,
             'type': obj_type,
-            'parent': parent_name,
             'position': convert_position(obj.location),
             'rotation': convert_rotation(obj.rotation_euler),
             'scale': convert_scale(obj.scale),
             'visible': not obj.hide_render,
-            'param': {},
         }
+
+        # カスタムプロパティ
+        custom_property_list = obj.blidge.custom_property_list
+        if len(custom_property_list) > 0:
+            object_data['custom_properties'] = {}
+
+            for custom_prop in custom_property_list:
+                # 値を取得
+                if custom_prop.prop_type == 'FLOAT':
+                    value = custom_prop.value_float
+                elif custom_prop.prop_type == 'INT':
+                    value = custom_prop.value_int
+                elif custom_prop.prop_type == 'BOOL':
+                    value = custom_prop.value_bool
+                else:
+                    continue
+
+                object_data['custom_properties'][custom_prop.name] = {
+                    'type': custom_prop.prop_type.lower(),
+                    'value': value
+                }
 
         # アニメーション
         animation_list = obj.blidge.animation_list
@@ -57,31 +75,39 @@ class ObjectParser:
             object_data['animation'] = {}
 
             for animation in animation_list:
-                if animation.accessor in self.animation_data.get('dict', {}):
-                    object_data['animation'][animation.name] = \
-                        self.animation_data['dict'][animation.accessor]
+                if animation.id and animation.id in self.animation_data.get('dict', {}):
+                    # nameが設定されている場合はそれを使用、なければIDを使用
+                    key = animation.name if animation.name else animation.id
+                    object_data['animation'][key] = \
+                        self.animation_data['dict'][animation.id]
 
         # 専門パーサーに委譲してパラメータを取得
+        param = {}
+
         # カメラ
         if obj.type == 'CAMERA':
-            object_data['param'].update(CameraParser.parse(obj))
+            param.update(CameraParser.parse(obj))
 
         # ライト
         if obj.type == 'LIGHT':
-            object_data['param'].update(LightParser.parse(obj))
+            param.update(LightParser.parse(obj))
 
         # プリミティブジオメトリ
         if obj.blidge.type in ['cube', 'sphere', 'plane']:
-            object_data['param'].update(GeometryParser.parse(obj))
+            param.update(GeometryParser.parse(obj))
 
         # メッシュ
         if obj.blidge.type == 'mesh' and obj.type == 'MESH':
-            object_data['param'].update(MeshParser.parse(obj))
+            param.update(MeshParser.parse(obj))
 
-        # マテリアル
-        material_data = MaterialParser.parse(obj, self.animation_data)
-        if material_data is not None:
-            object_data['material'] = material_data
+        # パラメータがある場合のみ追加
+        if len(param) > 0:
+            object_data['param'] = param
+
+        # ユニフォーム
+        uniforms = MaterialParser.parse(obj, self.animation_data)
+        if uniforms is not None:
+            object_data['uniforms'] = uniforms
 
         # 子オブジェクトの再帰的処理
         if len(obj.children) > 0:

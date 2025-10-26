@@ -127,7 +127,7 @@ class AnimationParser:
         """すべてのアニメーションをパース
 
         Returns:
-            list(アニメーションリスト)とdict(アクセサーマッピング)を含む辞書
+            list(アニメーションリスト)とdict(アニメーションIDマッピング)を含む辞書
         """
         animation_list = []
         animation_dict = {}
@@ -145,13 +145,13 @@ class AnimationParser:
         for action in bpy.data.actions:
             for fcurve in action.fcurves:
                 fcurve_prop = get_fcurve_prop(fcurve)
-                if fcurve_prop is not None:
-                    accessor_id = fcurve_prop.accessor
-                    if accessor_id not in animation_dict:
-                        animation_dict[accessor_id] = dict_counter
+                if fcurve_prop is not None and fcurve_prop.animation_id:
+                    animation_id = fcurve_prop.animation_id
+                    if animation_id not in animation_dict:
+                        animation_dict[animation_id] = dict_counter
                         animation_list.append([])
                         dict_counter += 1
-                    animation_list[animation_dict[accessor_id]].append(
+                    animation_list[animation_dict[animation_id]].append(
                         AnimationParser.parse_fcurve(fcurve)
                     )
 
