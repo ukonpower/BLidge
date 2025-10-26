@@ -176,6 +176,26 @@ class BLIDGE_OT_ObjectAnimationRemove(Operator):
         return {'FINISHED'}
 
 
+class BLIDGE_OT_ObjectAnimationToggleUniform(Operator):
+    bl_idname = 'blidge.object_animation_toggle_uniform'
+    bl_label = "Toggle Uniform"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    item_index: bpy.props.IntProperty(default=0)
+    enable: bpy.props.BoolProperty(default=True)
+
+    def execute(self, context):
+        object = context.object
+
+        if self.item_index < 0 or self.item_index >= len(object.blidge.animation_list):
+            return {'CANCELLED'}
+
+        item = object.blidge.animation_list[self.item_index]
+        item.as_uniform = self.enable
+
+        return {'FINISHED'}
+
+
 class BLIDGE_OT_AddFCurveToAccessor(Operator):
     """アクセサーの空きスロットにF-Curveを追加"""
     bl_idname = "blidge.add_fcurve_to_accessor"

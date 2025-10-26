@@ -55,75 +55,96 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
         scene = bpy.context.scene
 
         box_animation = layout.box()
-        box_animation.label(text="Animations", icon='GRAPH')
+        header_row = box_animation.row()
+        header_row.label(text="Animations", icon='GRAPH')
 
         # 各アニメーションアイテムをカスタム描画
         animation_list = object.blidge.animation_list
+
+        if len(animation_list) == 0:
+            # リストが空の場合のメッセージ
+            empty_row = box_animation.row()
+            empty_row.alignment = 'CENTER'
+            empty_row.label(text="アニメーションがありません", icon='INFO')
+
         for i, item in enumerate(animation_list):
-            # アイテム全体のボックス
+            # 各アニメーションアイテムをボックスで囲む
             item_box = box_animation.box()
 
-            # メイン行
+            # メイン行: アクセサー選択と削除ボタン
             main_row = item_box.row(align=True)
-
-            # 削除ボタン（左端に配置）
-            ot_remove = main_row.operator("blidge.object_animation_remove", text='', icon='X', emboss=False)
-            ot_remove.item_index = i
 
             # アクセサー選択 (editableの場合のみ操作可)
             accessor_col = main_row.column(align=True)
             accessor_col.enabled = item.editable
-            accessor_col.prop_search(item, 'accessor', scene.blidge, 'accessor_list', text='', icon="FCURVE")
+            accessor_col.scale_x = 1.5
+            accessor_col.prop_search(item, 'accessor', scene.blidge, 'accessor_list', text='', icon="ANIM")
 
-            # as_uniformボタン (右端に配置、常に操作可能)
-            uniform_col = main_row.column(align=True)
-            if item.as_uniform:
-                uniform_col.prop(item, 'as_uniform', text='', icon='SHADING_TEXTURE', emboss=True)
-            else:
-                uniform_col.prop(item, 'as_uniform', text='', icon='SHADING_TEXTURE', emboss=False)
+            # 削除ボタン
+            remove_col = main_row.column(align=True)
+            ot_remove = remove_col.operator("blidge.object_animation_remove", text='', icon='TRASH', emboss=False)
+            ot_remove.item_index = i
 
-            # as_uniformがTrueの場合、下にUniform設定を展開
-            if item.as_uniform:
-                sub_row = item_box.row(align=True)
-                sub_row.label(text='', icon='BLANK1')
-                sub_row.prop(item, 'name', text='Uniform Name', icon='CUBE')
-
-            # アクセサーに紐づくF-Curveリストを表示
+            # アクセサーに紐づくF-Curveをグリッド表示
             if item.accessor:
-                # このアクセサーに紐づくF-Curveを検索し、軸ごとにマッピング
+                # このアクセサーに紐づくF-Curveを検索
                 fcurve_dict = {}
                 for fc in scene.blidge.fcurve_list:
                     if fc.accessor == item.accessor:
                         fcurve_dict[fc.axis] = fc
 
-                # F-Curveリストのヘッダー
-                fcurve_header_row = item_box.row(align=True)
-                fcurve_header_row.label(text='', icon='BLANK1')
-                fcurve_header_row.label(text='F-Curves', icon='GRAPH')
+                # F-Curve縦積みリスト
+                item_box.separator(factor=0.5)
+                fcurve_label = item_box.row()
+                fcurve_label.label(text="F-Curves", icon='FCURVE')
 
-                # 各軸(x,y,z,w)のスロットを表示
                 all_axes = ['x', 'y', 'z', 'w']
+
+                # 各軸を縦に表示
                 for axis in all_axes:
                     axis_row = item_box.row(align=True)
-                    axis_row.label(text='', icon='BLANK1')
-                    axis_row.label(text='', icon='BLANK1')
+                    axis_split = axis_row.split(factor=0.15, align=True)
 
                     # 軸ラベル
-                    axis_row.label(text=f'[{axis.upper()}]', icon='DOT')
+                    label_col = axis_split.column(align=True)
+                    label_col.alignment = 'CENTER'
+                    label_col.label(text=axis.upper())
 
+                    # F-Curveまたは追加ボタン
+                    content_col = axis_split.column(align=True)
                     if axis in fcurve_dict:
-                        # F-Curveが割り当てられている場合、IDを表示
+                        # F-Curveが存在する場合
                         fc = fcurve_dict[axis]
-                        axis_row.label(text=fc.id, icon='FCURVE_SNAPSHOT')
+                        content_col.label(text=fc.id, icon='HANDLETYPE_AUTO_CLAMP_VEC')
                     else:
-                        # 空きスロットの場合、プラスボタンを表示
-                        ot_add = axis_row.operator("blidge.add_fcurve_to_accessor", text='', icon='ADD', emboss=False)
+                        # 追加ボタン
+                        ot_add = content_col.operator("blidge.add_fcurve_to_accessor",
+                                                     text='追加', icon='ADD')
                         ot_add.accessor = item.accessor
                         ot_add.target_axis = axis
 
+            # Uniformセクション (F-Curveの下に配置)
+            item_box.separator(factor=0.5)
+            uniform_row = item_box.row(align=True)
+
+            if item.as_uniform:
+                # Uniform名入力フィールドとリセットボタン
+                uniform_row.prop(item, 'name', text='', icon='SHADING_TEXTURE', emboss=True)
+                # リセットボタン (as_uniformをFalseにする)
+                reset_op = uniform_row.operator("blidge.object_animation_toggle_uniform", text='', icon='X', emboss=False)
+                reset_op.item_index = i
+                reset_op.enable = False
+            else:
+                # Use as Uniformボタン
+                enable_op = uniform_row.operator("blidge.object_animation_toggle_uniform", text='Use as Uniform', icon='SHADING_TEXTURE')
+                enable_op.item_index = i
+                enable_op.enable = True
+
         # 作成ボタン
-        animation_controls = box_animation.row()
-        animation_controls.operator("blidge.object_animation_create", text='Create', icon="PLUS")
+        box_animation.separator()
+        create_row = box_animation.row()
+        create_row.scale_y = 1.2
+        create_row.operator("blidge.object_animation_create", text='アニメーションを作成', icon="ADD")
 
         # custom properties (折りたたみ可能、animationsの外の下)
         box_custom = layout.box()
