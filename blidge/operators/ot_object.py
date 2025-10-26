@@ -139,6 +139,23 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
         # リストから削除
         obj.blidge.custom_property_list.remove(self.item_index)
 
+        # 削除したインデックス以降のF-Curveのdata_pathを更新
+        if obj.animation_data and obj.animation_data.action:
+            for fcurve in obj.animation_data.action.fcurves:
+                # カスタムプロパティのdata_pathかチェック
+                if fcurve.data_path.startswith('blidge.custom_property_list['):
+                    # インデックスを抽出
+                    import re
+                    match = re.search(r'blidge\.custom_property_list\[(\d+)\]\.value_(float|int|bool)', fcurve.data_path)
+                    if match:
+                        current_index = int(match.group(1))
+                        value_type = match.group(2)
+
+                        # 削除したインデックスより大きい場合、-1する
+                        if current_index > self.item_index:
+                            new_index = current_index - 1
+                            fcurve.data_path = f'blidge.custom_property_list[{new_index}].value_{value_type}'
+
         self.report({'INFO'}, f"カスタムプロパティ '{prop_name}' を削除しました")
         return {'FINISHED'}
 
