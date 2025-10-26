@@ -80,8 +80,9 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             name_col.scale_x = 2.0
             name_col.prop(item, 'name', text='', emboss=item.editable, icon='ANIM_DATA')
 
-            # 削除ボタン
+            # 削除ボタン (editableの場合のみ有効)
             remove_col = header_row.column(align=True)
+            remove_col.enabled = item.editable
             ot_remove = remove_col.operator("blidge.object_animation_remove", text='', icon='TRASH', emboss=False)
             ot_remove.item_index = i
 
@@ -138,19 +139,8 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             # Uniformセクション (F-Curveの下に配置)
             item_box.separator(factor=0.5)
             uniform_row = item_box.row(align=True)
-
-            if item.as_uniform:
-                # Uniform名入力フィールドとリセットボタン
-                uniform_row.prop(item, 'name', text='', icon='SHADING_TEXTURE', emboss=True)
-                # リセットボタン (as_uniformをFalseにする)
-                reset_op = uniform_row.operator("blidge.object_animation_toggle_uniform", text='', icon='X', emboss=False)
-                reset_op.item_index = i
-                reset_op.enable = False
-            else:
-                # Use as Uniformボタン
-                enable_op = uniform_row.operator("blidge.object_animation_toggle_uniform", text='Use as Uniform', icon='SHADING_TEXTURE')
-                enable_op.item_index = i
-                enable_op.enable = True
+            uniform_row.label(text="Use as Uniform:")
+            uniform_row.prop(item, 'as_uniform', text='')
 
         # 作成ボタン
         box_animation.separator()

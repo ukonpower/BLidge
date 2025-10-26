@@ -32,8 +32,6 @@ if "bpy" in locals():
     imp.reload(BLIDGE_PT_Controls)
     imp.reload(BLIDGE_PT_ObjectPropertie)
     imp.reload(BLIDGE_PT_FCurveAccessor)
-    imp.reload(BLIDGE_UL_Uniforms)
-    imp.reload(BLIDGE_UL_Animations)
     imp.reload(BLidgeVirtualMeshRenderer)
 else:
     import bpy
@@ -47,7 +45,6 @@ else:
     from .panels.pt_view_controls import BLIDGE_PT_Controls
     from .panels.pt_prop_object import BLIDGE_PT_ObjectPropertie
     from .panels.pt_graph_fcurve import BLIDGE_PT_FCurveAccessor
-    from .ui.ui_list import BLIDGE_UL_Uniforms, BLIDGE_UL_Animations
     from .renderer.renderer_virtual_mesh import BLidgeVirtualMeshRenderer
     from .globals.events import register_event, unregister_event
 
@@ -71,8 +68,6 @@ classes = [
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,
     BLIDGE_PT_FCurveAccessor,
-    BLIDGE_UL_Animations,
-    BLIDGE_UL_Uniforms,
 ]
 
 virtualmesh_renderer = BLidgeVirtualMeshRenderer()

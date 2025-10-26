@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Operator
 
-from ..ui.ui_list import updateFCurveAccessor
+from ..utils.fcurve_accessor import updateFCurveAccessor
 from ..utils.fcurve_manager import get_fcurve_id
 
 

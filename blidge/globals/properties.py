@@ -1,7 +1,7 @@
 import bpy
 
 from ..utils.gltf import get_gltf_presets
-from ..ui.ui_list import updateFCurveAccessor
+from ..utils.fcurve_accessor import updateFCurveAccessor
 
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
@@ -20,6 +20,10 @@ class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 		default='x'
 	)
 
+class BLidgeAccessorProperty(bpy.types.PropertyGroup):
+	name: bpy.props.StringProperty(default='')
+	accessor: bpy.props.StringProperty(default='')
+
 class BLidgeControlsProperty(bpy.types.PropertyGroup):
     sync_host: bpy.props.StringProperty(name="host", default="localhost")
     sync_port: bpy.props.IntProperty(name="port", default=3100)
@@ -32,7 +36,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
-    accessor_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
+    accessor_list: bpy.props.CollectionProperty(type=BLidgeAccessorProperty, name="accessor")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
@@ -119,6 +123,7 @@ classes = [
     BLidgeGeometrySphereProperty,
     BLidgeLightProperty,
     BLidgeFCurveProperty,
+    BLidgeAccessorProperty,
     BLidgeControlsProperty,
     BLidgeCustomProperty,
     BLidgeAnimationProperty,
