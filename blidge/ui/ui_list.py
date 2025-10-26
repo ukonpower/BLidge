@@ -27,10 +27,10 @@ def updateFCurveAccessor(self,context):
     # default animation
 
     table = [
-        { "target": "_hide_render" },
-        { "target": "_scale" },
-        { "target": "_rotation_euler" },
-        { "target": "_location" },
+        { "target": "_hide_render", "name": "hide" },
+        { "target": "_scale", "name": "scale" },
+        { "target": "_rotation_euler", "name": "rotation" },
+        { "target": "_location", "name": "position" },
     ]
 
     for obj in context.scene.objects:
@@ -57,6 +57,7 @@ def updateFCurveAccessor(self,context):
 
                         if not exists:
                             item = animation_list.add()
+                            item.name = t["name"]
                             item.accessor = fcurve_prop.accessor
                             item.editable = False
                             animation_list.move(len(animation_list) - 1, 0)
