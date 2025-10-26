@@ -75,9 +75,11 @@ class ObjectParser:
             object_data['animation'] = {}
 
             for animation in animation_list:
-                if animation.accessor in self.animation_data.get('dict', {}):
-                    object_data['animation'][animation.name] = \
-                        self.animation_data['dict'][animation.accessor]
+                if animation.id and animation.id in self.animation_data.get('dict', {}):
+                    # nameが設定されている場合はそれを使用、なければIDを使用
+                    key = animation.name if animation.name else animation.id
+                    object_data['animation'][key] = \
+                        self.animation_data['dict'][animation.id]
 
         # 専門パーサーに委譲してパラメータを取得
         param = {}

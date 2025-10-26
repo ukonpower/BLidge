@@ -1,13 +1,23 @@
 import bpy
+import uuid
 
 from ..utils.gltf import get_gltf_presets
-from ..utils.fcurve_accessor import updateFCurveAccessor
+
+
+def ensure_animation_id(self, context):
+    """アニメーションIDが空の場合、UUIDを自動生成"""
+    if not self.id:
+        self.id = str(uuid.uuid4())
 
 
 class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 	index: bpy.props.IntProperty(default=0)
 	id: bpy.props.StringProperty(default='')
-	accessor: bpy.props.StringProperty(default='',update=updateFCurveAccessor)
+	animation_id: bpy.props.StringProperty(
+		name="Animation ID",
+		description="紐づくアニメーション項目のID",
+		default=''
+	)
 	axis: bpy.props.EnumProperty(
 		name="axis",
         description="value axis",
@@ -19,10 +29,6 @@ class BLidgeFCurveProperty(bpy.types.PropertyGroup):
 		],
 		default='x'
 	)
-
-class BLidgeAccessorProperty(bpy.types.PropertyGroup):
-	name: bpy.props.StringProperty(default='')
-	accessor: bpy.props.StringProperty(default='')
 
 class BLidgeControlsProperty(bpy.types.PropertyGroup):
     sync_host: bpy.props.StringProperty(name="host", default="localhost")
@@ -36,7 +42,6 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
-    accessor_list: bpy.props.CollectionProperty(type=BLidgeAccessorProperty, name="accessor")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
@@ -78,12 +83,17 @@ class BLidgeCustomProperty(bpy.types.PropertyGroup):
     value_bool: bpy.props.BoolProperty(name="値", default=False)
 
 class BLidgeAnimationProperty(bpy.types.PropertyGroup):
+    id: bpy.props.StringProperty(
+        name="ID",
+        description="アニメーション項目の一意のID",
+        default='',
+        update=ensure_animation_id
+    )
     name: bpy.props.StringProperty(
         name="名前",
         description="Uniformとして使用する際の変数名",
         default=''
     )
-    accessor: bpy.props.StringProperty(default='')
     editable: bpy.props.BoolProperty(default=True)
     as_uniform: bpy.props.BoolProperty(
         name="Uniformとして使用",
@@ -123,7 +133,6 @@ classes = [
     BLidgeGeometrySphereProperty,
     BLidgeLightProperty,
     BLidgeFCurveProperty,
-    BLidgeAccessorProperty,
     BLidgeControlsProperty,
     BLidgeCustomProperty,
     BLidgeAnimationProperty,

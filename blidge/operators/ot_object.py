@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Operator
+import uuid
 
 # --------------------
 #  Custom Property
@@ -126,6 +127,7 @@ class BLIDGE_OT_ObjectUniformCreate(Operator):
     def execute(self, context):
         object = context.object
         item = object.blidge.animation_list.add()
+        item.id = str(uuid.uuid4())
         item.as_uniform = True
 
         return {'FINISHED'}
@@ -158,6 +160,7 @@ class BLIDGE_OT_ObjectAnimationCreate(Operator):
     def execute(self, context):
         object = context.object
         item = object.blidge.animation_list.add()
+        item.id = str(uuid.uuid4())
 
         return {'FINISHED'}
 
@@ -196,16 +199,16 @@ class BLIDGE_OT_ObjectAnimationToggleUniform(Operator):
         return {'FINISHED'}
 
 
-class BLIDGE_OT_AddFCurveToAccessor(Operator):
-    """アクセサーの空きスロットにF-Curveを追加"""
-    bl_idname = "blidge.add_fcurve_to_accessor"
+class BLIDGE_OT_AddFCurveToAnimation(Operator):
+    """アニメーション項目にF-Curveを追加"""
+    bl_idname = "blidge.add_fcurve_to_animation"
     bl_label = "F-Curveを追加"
     bl_options = {'REGISTER', 'UNDO'}
 
-    accessor: bpy.props.StringProperty(
-        name="アクセサー",
+    animation_id: bpy.props.StringProperty(
+        name="アニメーションID",
         default="",
-        description="F-Curveを追加するアクセサー"
+        description="F-Curveを追加するアニメーション項目のID"
     )
 
     target_axis: bpy.props.StringProperty(
@@ -251,7 +254,7 @@ class BLIDGE_OT_AddFCurveToAccessor(Operator):
 
         # 指定された軸が既に使用されていないか確認
         for fc in scene.blidge.fcurve_list:
-            if fc.accessor == self.accessor and fc.axis == self.target_axis:
+            if fc.animation_id == self.animation_id and fc.axis == self.target_axis:
                 self.report({'ERROR'}, f"軸 [{self.target_axis.upper()}] は既に使用されています")
                 return {'CANCELLED'}
 
@@ -321,7 +324,7 @@ class BLIDGE_OT_AddFCurveToAccessor(Operator):
             fcurve = scene.blidge.fcurve_list.add()
             fcurve.id = fcurve_id
             fcurve.axis = self.target_axis
-            fcurve.accessor = self.accessor
+            fcurve.animation_id = self.animation_id
 
         except Exception as e:
             import traceback
@@ -337,7 +340,6 @@ class BLIDGE_OT_AddFCurveToAccessor(Operator):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=f"アクセサー: {self.accessor}")
         layout.label(text=f"軸: [{self.target_axis.upper()}]")
         layout.prop(self, "prop_name")
         layout.prop(self, "prop_type")
