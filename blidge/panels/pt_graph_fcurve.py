@@ -65,12 +65,10 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                     curve_data = curve
                     break
 
+            # animation_idから対応するオブジェクトとアニメーション項目を検索
+            found_obj = None
+            found_anim = None
             if curve_data:
-                # 既にanimation_idが設定されている場合
-
-                # animation_idから対応するオブジェクトとアニメーション項目を検索
-                found_obj = None
-                found_anim = None
                 for obj in context.scene.objects:
                     for anim in obj.blidge.animation_list:
                         if anim.id == curve_data.animation_id:
@@ -80,28 +78,26 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                     if found_obj:
                         break
 
-                if found_anim:
-                    info_text = f"{found_obj.name} > {found_anim.name if found_anim.name else found_anim.id[:8]}"
-                    box.label(text=info_text, icon='ANIM_DATA')
-                else:
-                    box.label(text="アニメーション項目が見つかりません", icon='ERROR')
-
-                box.prop(curve_data, 'axis', text='Axis', icon='EMPTY_ARROWS')
-
-                # ボタン行
+            if found_anim:
+                # アニメーション項目が設定されている場合
+                # アニメーション項目名と変更ボタンを横並び
                 row = box.row(align=True)
+                info_text = f"{found_obj.name} > {found_anim.name if found_anim.name else found_anim.id[:8]}"
+                row.label(text=info_text, icon='ANIM_DATA')
 
                 # 変更ボタン
-                op_change = row.operator( BLIDGE_OT_FCurveSetAnimationID.bl_idname, text="Change", icon='FILE_REFRESH' )
+                op_change = row.operator( BLIDGE_OT_FCurveSetAnimationID.bl_idname, text="", icon='FILE_REFRESH' )
                 op_change.fcurve_id = fcurve_id
 
+                # Axis設定
+                box.prop(curve_data, 'axis', text='Axis', icon='EMPTY_ARROWS')
+
                 # 削除ボタン
-                op_delete = row.operator( BLIDGE_OT_FCurveAccessorClear.bl_idname, text="Remove", icon='CANCEL' )
+                op_delete = box.operator( BLIDGE_OT_FCurveAccessorClear.bl_idname, text="Remove", icon='CANCEL' )
                 op_delete.fcurve_id = fcurve_id
 
             else:
-                # まだ設定されていない場合、作成ボタンを表示
-                box.label(text="Animation項目に紐づけてください", icon='INFO')
+                # まだ設定されていない場合 - Createボタンのみ
                 op_create = box.operator( BLIDGE_OT_FCurveAccessorCreate.bl_idname, text="Create", icon='PLUS' )
                 op_create.fcurve_id = fcurve_id
                 op_create.fcurve_axis = get_fcurve_axis( fcurve_id, 'xyzw'[fcurve.array_index] )
