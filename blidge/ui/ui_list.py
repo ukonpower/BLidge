@@ -83,11 +83,19 @@ class BLIDGE_UL_Animations(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row()
-        row.enabled = item.editable
-        if item.as_uniform:
-            row.prop(item, 'name', text='', emboss=False, icon='CUBE')
+
+        # Name field (editable only for custom animations)
+        name_col = row.column()
+        name_col.enabled = item.editable
+        name_col.prop(item, 'name', text='', emboss=item.editable, icon='CUBE')
+
+        # Accessor field
         row.prop_search(item, 'accessor', context.scene.blidge, 'accessor_list', text='', icon="FCURVE")
+
+        # As uniform toggle
         row.prop(item, 'as_uniform', text='')
+
+        # Remove button
         ot_remove = row.operator( "blidge.object_animation_remove", text='', icon='CANCEL', emboss=False )
         ot_remove.item_index = index
 

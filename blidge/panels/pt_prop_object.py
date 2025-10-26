@@ -71,21 +71,30 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             # 各アニメーションアイテムをボックスで囲む
             item_box = box_animation.box()
 
-            # メイン行: アクセサー選択と削除ボタン
-            main_row = item_box.row(align=True)
+            # 上段: 名前と削除ボタン
+            header_row = item_box.row(align=True)
 
-            # アクセサー選択 (editableの場合のみ操作可)
-            accessor_col = main_row.column(align=True)
-            accessor_col.enabled = item.editable
-            accessor_col.scale_x = 1.5
-            accessor_col.prop_search(item, 'accessor', scene.blidge, 'accessor_list', text='', icon="ANIM")
+            # 名前フィールド (editableの場合のみ編集可)
+            name_col = header_row.column(align=True)
+            name_col.enabled = item.editable
+            name_col.scale_x = 2.0
+            name_col.prop(item, 'name', text='', emboss=item.editable, icon='ANIM_DATA')
 
             # 削除ボタン
-            remove_col = main_row.column(align=True)
+            remove_col = header_row.column(align=True)
             ot_remove = remove_col.operator("blidge.object_animation_remove", text='', icon='TRASH', emboss=False)
             ot_remove.item_index = i
 
-            # アクセサーに紐づくF-Curveをグリッド表示
+            # 下段: アクセサーとF-Curve
+            item_box.separator(factor=0.3)
+
+            # アクセサー選択
+            accessor_row = item_box.row(align=True)
+            accessor_row.enabled = item.editable
+            accessor_row.label(text="Accessor:", icon='FCURVE')
+            accessor_row.prop_search(item, 'accessor', scene.blidge, 'accessor_list', text='', icon="NONE")
+
+            # アクセサーに紐づくF-Curveをグリッド表示 (インデント)
             if item.accessor:
                 # このアクセサーに紐づくF-Curveを検索
                 fcurve_dict = {}
@@ -93,32 +102,35 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
                     if fc.accessor == item.accessor:
                         fcurve_dict[fc.axis] = fc
 
-                # F-Curve縦積みリスト
-                item_box.separator(factor=0.5)
-                fcurve_label = item_box.row()
-                fcurve_label.label(text="F-Curves", icon='FCURVE')
+                # F-Curveセクション (インデント付き)
+                item_box.separator(factor=0.3)
 
                 all_axes = ['x', 'y', 'z', 'w']
 
-                # 各軸を縦に表示
+                # 各軸を縦に表示 (インデント)
                 for axis in all_axes:
                     axis_row = item_box.row(align=True)
-                    axis_split = axis_row.split(factor=0.15, align=True)
+                    # 左側に空白を追加してインデント
+                    axis_split = axis_row.split(factor=0.08, align=True)
+                    axis_split.label(text="")  # インデント用の空白
+
+                    # F-Curveコンテンツ
+                    content_split = axis_split.split(factor=0.12, align=True)
 
                     # 軸ラベル
-                    label_col = axis_split.column(align=True)
+                    label_col = content_split.column(align=True)
                     label_col.alignment = 'CENTER'
-                    label_col.label(text=axis.upper())
+                    label_col.label(text=axis.upper(), icon='DOT')
 
                     # F-Curveまたは追加ボタン
-                    content_col = axis_split.column(align=True)
+                    fcurve_col = content_split.column(align=True)
                     if axis in fcurve_dict:
                         # F-Curveが存在する場合
                         fc = fcurve_dict[axis]
-                        content_col.label(text=fc.id, icon='HANDLETYPE_AUTO_CLAMP_VEC')
+                        fcurve_col.label(text=fc.id, icon='HANDLETYPE_AUTO_CLAMP_VEC')
                     else:
                         # 追加ボタン
-                        ot_add = content_col.operator("blidge.add_fcurve_to_accessor",
+                        ot_add = fcurve_col.operator("blidge.add_fcurve_to_accessor",
                                                      text='追加', icon='ADD')
                         ot_add.accessor = item.accessor
                         ot_add.target_axis = axis
