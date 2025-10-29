@@ -202,20 +202,23 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 			# まだ設定されていない場合
 			# デフォルトアニメーションタイプを検出
 			anim_type = detect_default_animation_type(self.fcurve_id)
-			
+
 			if anim_type and self.target_object:
 				obj = context.scene.objects.get(self.target_object)
 				if obj:
 					# position/rotation/scale/hideの場合は自動作成して即実行
 					# EnumPropertyを経由せずに直接animation_idを作成して実行
 					created_id = get_or_create_default_animation(obj, anim_type)
-					
+
 					# fcurve_listに新しいエントリを追加
 					item = context.scene.blidge.fcurve_list.add()
 					item.id = self.fcurve_id
 					item.animation_id = created_id
 					item.axis = self.fcurve_axis
-					
+
+					# UIを更新
+					context.area.tag_redraw()
+
 					return {'FINISHED'}
 
 		# 既に設定がある場合、または通常の場合はダイアログを表示
@@ -237,6 +240,9 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 		item.animation_id = self.animation_id
 		item.axis = self.fcurve_axis
 
+		# UIを更新
+		context.area.tag_redraw()
+
 		return {'FINISHED'}
 
 
@@ -256,6 +262,9 @@ class BLIDGE_OT_FCurveAccessorRemove(Operator):
 			if curve.id == self.fcurve_id and curve.animation_id == self.animation_id:
 				context.scene.blidge.fcurve_list.remove(index)
 				break
+
+		# UIを更新
+		context.area.tag_redraw()
 
 		return {'FINISHED'}
 

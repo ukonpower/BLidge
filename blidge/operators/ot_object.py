@@ -378,6 +378,9 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
             self.report({'ERROR'}, f"F-Curve作成失敗: {e}")
             return {'CANCELLED'}
 
+        # UIを更新
+        context.area.tag_redraw()
+
         self.report({'INFO'}, f"カスタムプロパティ '{self.prop_name}' とF-Curve [{self.target_axis.upper()}] を追加しました")
         return {'FINISHED'}
 
