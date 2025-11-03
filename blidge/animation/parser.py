@@ -123,36 +123,89 @@ class AnimationParser:
         return parsed_fcurve
 
     @staticmethod
+    def _get_fcurve_props(fcurve: bpy.types.FCurve) -> List[Any]:
+        """F-Curveに紐づくプロパティをすべて取得
+
+        Args:
+            fcurve: 対象のF-Curve
+
+        Returns:
+            マッチしたF-Curveプロパティのリスト
+        """
+        fcurve_axis_id = get_fcurve_id(fcurve, True)
+        return [
+            fcurve_prop
+            for fcurve_prop in bpy.context.scene.blidge.fcurve_list
+            if fcurve_prop.id == fcurve_axis_id
+        ]
+
+    @staticmethod
+    def _ensure_animation_id_exists(animation_id: str, animation_dict: Dict[str, int],
+                                     animation_list: List[List], counter: int) -> int:
+        """アニメーションIDが存在しない場合、新規追加
+
+        Args:
+            animation_id: アニメーションID
+            animation_dict: アニメーションIDとインデックスのマッピング
+            animation_list: アニメーションデータのリスト
+            counter: 現在のカウンター値
+
+        Returns:
+            更新後のカウンター値
+        """
+        if animation_id not in animation_dict:
+            animation_dict[animation_id] = counter
+            animation_list.append([])
+            return counter + 1
+        return counter
+
+    @staticmethod
+    def _process_fcurve(fcurve: bpy.types.FCurve, animation_dict: Dict[str, int],
+                        animation_list: List[List]) -> None:
+        """F-Curveを処理してアニメーションリストに追加
+
+        Args:
+            fcurve: 処理対象のF-Curve
+            animation_dict: アニメーションIDとインデックスのマッピング
+            animation_list: アニメーションデータのリスト
+        """
+        fcurve_props = AnimationParser._get_fcurve_props(fcurve)
+
+        for fcurve_prop in fcurve_props:
+            if not fcurve_prop.animation_id:
+                continue
+
+            animation_id = fcurve_prop.animation_id
+            animation_index = animation_dict.get(animation_id)
+
+            if animation_index is not None:
+                parsed_fcurve = AnimationParser.parse_fcurve(fcurve)
+                animation_list[animation_index].append(parsed_fcurve)
+
+    @staticmethod
     def parse_animation_list() -> Dict[str, Any]:
         """すべてのアニメーションをパース
 
         Returns:
             list(アニメーションリスト)とdict(アニメーションIDマッピング)を含む辞書
         """
-        animation_list = []
-        animation_dict = {}
-        dict_counter = 0
+        animation_list: List[List] = []
+        animation_dict: Dict[str, int] = {}
+        counter = 0
 
-        def get_fcurve_prop(fcurve: bpy.types.FCurve) -> Optional[Any]:
-            """F-Curveプロパティを取得"""
-            fcurve_axis_id = get_fcurve_id(fcurve, True)
-            for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
-                if fcurve_prop.id == fcurve_axis_id:
-                    return fcurve_prop
-            return None
-
-        # すべてのアクションからF-Curveを抽出
+        # 1パス目: すべてのanimation_idを収集して辞書とリストを構築
         for action in bpy.data.actions:
             for fcurve in action.fcurves:
-                fcurve_prop = get_fcurve_prop(fcurve)
-                if fcurve_prop is not None and fcurve_prop.animation_id:
-                    animation_id = fcurve_prop.animation_id
-                    if animation_id not in animation_dict:
-                        animation_dict[animation_id] = dict_counter
-                        animation_list.append([])
-                        dict_counter += 1
-                    animation_list[animation_dict[animation_id]].append(
-                        AnimationParser.parse_fcurve(fcurve)
-                    )
+                fcurve_props = AnimationParser._get_fcurve_props(fcurve)
+                for fcurve_prop in fcurve_props:
+                    if fcurve_prop.animation_id:
+                        counter = AnimationParser._ensure_animation_id_exists(
+                            fcurve_prop.animation_id, animation_dict, animation_list, counter
+                        )
+
+        # 2パス目: F-Curveデータを該当するアニメーションに追加
+        for action in bpy.data.actions:
+            for fcurve in action.fcurves:
+                AnimationParser._process_fcurve(fcurve, animation_dict, animation_list)
 
         return {"list": animation_list, "dict": animation_dict}
