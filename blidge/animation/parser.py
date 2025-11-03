@@ -115,7 +115,7 @@ class AnimationParser:
         parsed_fcurve['k'] = AnimationParser.parse_keyframe_list(fcurve.keyframe_points, invert)
 
         # F-Curveプロパティから軸情報を取得
-        for fcurve_prop in bpy.context.scene.blidge.fcurve_list:
+        for fcurve_prop in bpy.context.scene.blidge.fcurve_mappings:
             if fcurve_prop.id == fcurve_id:
                 parsed_fcurve['axis'] = fcurve_prop.axis
                 break
@@ -135,7 +135,7 @@ class AnimationParser:
         fcurve_axis_id = get_fcurve_id(fcurve, True)
         return [
             fcurve_prop
-            for fcurve_prop in bpy.context.scene.blidge.fcurve_list
+            for fcurve_prop in bpy.context.scene.blidge.fcurve_mappings
             if fcurve_prop.id == fcurve_axis_id
         ]
 

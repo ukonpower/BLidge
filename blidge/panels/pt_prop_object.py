@@ -92,7 +92,7 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
             # このアニメーションIDに紐づくF-Curveを検索
             fcurve_dict = {}
             if item.id:
-                for fc in scene.blidge.fcurve_list:
+                for fc in scene.blidge.fcurve_mappings:
                     if fc.animation_id == item.id:
                         fcurve_dict[fc.axis] = fc
 
@@ -123,7 +123,7 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
                     fcurve_row.label(text=fc.id, icon='HANDLETYPE_AUTO_CLAMP_VEC')
 
                     # 削除ボタンを追加
-                    delete_op = fcurve_row.operator('blidge.fcurve_accessor_remove',
+                    delete_op = fcurve_row.operator('blidge.fcurve_mapper_remove',
                                                      text='', icon='X', emboss=False)
                     delete_op.fcurve_id = fc.id
                     delete_op.animation_id = item.id

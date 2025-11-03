@@ -26,15 +26,15 @@ if "bpy" in locals():
     imp.reload(BLIDGE_OT_ObjectAnimationRemove)
     imp.reload(BLIDGE_OT_ObjectAnimationToggleUniform)
     imp.reload(BLIDGE_OT_AddFCurveToAnimation)
-    imp.reload(BLIDGE_OT_FCurveAccessorCreate)
+    imp.reload(BLIDGE_OT_FCurveMapperCreate)
     imp.reload(BLIDGE_OT_FCurveSetAnimationID)
-    imp.reload(BLIDGE_OT_FCurveAccessorClear)
-    imp.reload(BLIDGE_OT_FCurveAccessorAdd)
-    imp.reload(BLIDGE_OT_FCurveAccessorRemove)
-    imp.reload(BLIDGE_OT_FCurveAccessorChange)
+    imp.reload(BLIDGE_OT_FCurveMapperClear)
+    imp.reload(BLIDGE_OT_FCurveMapperAdd)
+    imp.reload(BLIDGE_OT_FCurveMapperRemove)
+    imp.reload(BLIDGE_OT_FCurveMapperChange)
     imp.reload(BLIDGE_PT_Controls)
     imp.reload(BLIDGE_PT_ObjectPropertie)
-    imp.reload(BLIDGE_PT_FCurveAccessor)
+    imp.reload(BLIDGE_PT_FCurveMapper)
     imp.reload(BLidgeVirtualMeshRenderer)
 else:
     import bpy
@@ -43,11 +43,11 @@ else:
     from .globals.preference import BLIDGE_OT_install_dependencies, BLIDGE_PT_install_dependencies
     from .operators.ot_export import BLIDGE_OT_GLTFExport, BLIDGE_OT_SceneExport
     from .operators.ot_sync import BLIDGE_OT_Sync
-    from .operators.ot_fcurve import BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveAccessorClear, BLIDGE_OT_FCurveAccessorAdd, BLIDGE_OT_FCurveAccessorRemove, BLIDGE_OT_FCurveAccessorChange
+    from .operators.ot_fcurve import BLIDGE_OT_FCurveMapperCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveMapperClear, BLIDGE_OT_FCurveMapperAdd, BLIDGE_OT_FCurveMapperRemove, BLIDGE_OT_FCurveMapperChange
     from .operators.ot_object import BLIDGE_OT_AddCustomProperty, BLIDGE_OT_RemoveCustomProperty, BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove, BLIDGE_OT_ObjectAnimationToggleUniform, BLIDGE_OT_AddFCurveToAnimation
     from .panels.pt_view_controls import BLIDGE_PT_Controls
     from .panels.pt_prop_object import BLIDGE_PT_ObjectPropertie
-    from .panels.pt_graph_fcurve import BLIDGE_PT_FCurveAccessor
+    from .panels.pt_graph_fcurve import BLIDGE_PT_FCurveMapper
     from .renderer.renderer_virtual_mesh import BLidgeVirtualMeshRenderer
     from .globals.events import register_event, unregister_event
 
@@ -56,12 +56,12 @@ classes = [
     BLIDGE_OT_SceneExport,
     BLIDGE_OT_Sync,
     BLIDGE_OT_install_dependencies,
-    BLIDGE_OT_FCurveAccessorCreate,
+    BLIDGE_OT_FCurveMapperCreate,
     BLIDGE_OT_FCurveSetAnimationID,
-    BLIDGE_OT_FCurveAccessorClear,
-    BLIDGE_OT_FCurveAccessorAdd,
-    BLIDGE_OT_FCurveAccessorRemove,
-    BLIDGE_OT_FCurveAccessorChange,
+    BLIDGE_OT_FCurveMapperClear,
+    BLIDGE_OT_FCurveMapperAdd,
+    BLIDGE_OT_FCurveMapperRemove,
+    BLIDGE_OT_FCurveMapperChange,
     BLIDGE_OT_AddCustomProperty,
     BLIDGE_OT_RemoveCustomProperty,
     BLIDGE_OT_ObjectUniformCreate,
@@ -73,7 +73,7 @@ classes = [
     BLIDGE_PT_Controls,
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,
-    BLIDGE_PT_FCurveAccessor,
+    BLIDGE_PT_FCurveMapper,
 ]
 
 virtualmesh_renderer = BLidgeVirtualMeshRenderer()
@@ -83,6 +83,29 @@ def register():
 
     for c in classes:
         bpy.utils.register_class(c)
+
+    # マイグレーション: fcurve_list -> fcurve_mappings
+    # 既存の.blendファイルとの互換性を保つため
+    def migrate_fcurve_list():
+        for scene in bpy.data.scenes:
+            # 古いプロパティが存在するか確認
+            if hasattr(scene.blidge, 'get') and 'fcurve_list' in scene.blidge.keys():
+                # 新しいプロパティにデータをコピー
+                old_list = scene.blidge['fcurve_list']
+                for old_item in old_list:
+                    new_item = scene.blidge.fcurve_mappings.add()
+                    if 'id' in old_item:
+                        new_item.id = old_item['id']
+                    if 'animation_id' in old_item:
+                        new_item.animation_id = old_item['animation_id']
+                    if 'axis' in old_item:
+                        new_item.axis = old_item['axis']
+                # 古いプロパティを削除
+                del scene.blidge['fcurve_list']
+                print(f"BLidge: マイグレーション完了 - scene '{scene.name}' の fcurve_list を fcurve_mappings に移行しました")
+
+    # マイグレーションを実行
+    migrate_fcurve_list()
 
     # renderer
     virtualmesh_renderer.start(bpy.context)

@@ -112,8 +112,8 @@ def get_animation_items_for_enum(self, context):
     return items
 
 
-class BLIDGE_OT_FCurveAccessorCreate(Operator):
-    bl_idname = 'blidge.fcurve_accessor_create'
+class BLIDGE_OT_FCurveMapperCreate(Operator):
+    bl_idname = 'blidge.fcurve_mapper_create'
     bl_label = "F-CurveをAnimation項目に紐づける"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -150,7 +150,7 @@ class BLIDGE_OT_FCurveAccessorCreate(Operator):
             self.report({'WARNING'}, "Animation項目を選択してください")
             return {'CANCELLED'}
 
-        item = bpy.context.scene.blidge.fcurve_list.add()
+        item = bpy.context.scene.blidge.fcurve_mappings.add()
         item.id = self.fcurve_id
         item.animation_id = self.animation_id
         item.axis = self.fcurve_axis
@@ -183,7 +183,7 @@ class BLIDGE_OT_FCurveSetAnimationID(Operator):
             self.report({'WARNING'}, "Animation項目を選択してください")
             return {'CANCELLED'}
 
-        for curveData in bpy.context.scene.blidge.fcurve_list:
+        for curveData in bpy.context.scene.blidge.fcurve_mappings:
             if curveData.id == self.fcurve_id:
                 curveData.animation_id = self.animation_id
                 break
@@ -193,26 +193,26 @@ class BLIDGE_OT_FCurveSetAnimationID(Operator):
         return {'FINISHED'}
 
 
-class BLIDGE_OT_FCurveAccessorClear(Operator):
-    bl_idname = 'blidge.fcurve_asccessor_clear'
+class BLIDGE_OT_FCurveMapperClear(Operator):
+    bl_idname = 'blidge.fcurve_mapper_clear'
     bl_label = "Clear"
     bl_options = {'REGISTER', 'UNDO'}
 
     fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
 
     def execute(self, context):
-        for index, curveData in enumerate(bpy.context.scene.blidge.fcurve_list):
+        for index, curveData in enumerate(bpy.context.scene.blidge.fcurve_mappings):
             if curveData.id == self.fcurve_id:
-                bpy.context.scene.blidge.fcurve_list.remove(index)
+                bpy.context.scene.blidge.fcurve_mappings.remove(index)
                 break
 
         return {'FINISHED'}
 
 
-class BLIDGE_OT_FCurveAccessorAdd(Operator):
-	"""F-Curveに新しいアクセサを追加"""
-	bl_idname = 'blidge.fcurve_accessor_add'
-	bl_label = "アクセサを追加"
+class BLIDGE_OT_FCurveMapperAdd(Operator):
+	"""F-Curveに新しいマッパーを追加"""
+	bl_idname = 'blidge.fcurve_mapper_add'
+	bl_label = "マッパーを追加"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
@@ -225,10 +225,10 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 	target_object: bpy.props.StringProperty(name="Target Object", default="")
 
 	def invoke(self, context, event):
-		# 既にこのF-Curveにアクセサが設定されているかチェック
-		existing_accessors = [curve for curve in context.scene.blidge.fcurve_list if curve.id == self.fcurve_id]
-		
-		if len(existing_accessors) == 0:
+		# 既にこのF-Curveにマッパーが設定されているかチェック
+		existing_mappers = [curve for curve in context.scene.blidge.fcurve_mappings if curve.id == self.fcurve_id]
+
+		if len(existing_mappers) == 0:
 			# まだ設定されていない場合
 			# デフォルトアニメーションタイプを検出
 			anim_type = detect_default_animation_type(self.fcurve_id)
@@ -240,8 +240,8 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 					# EnumPropertyを経由せずに直接animation_idを作成して実行
 					created_id = get_or_create_default_animation(obj, anim_type)
 
-					# fcurve_listに新しいエントリを追加
-					item = context.scene.blidge.fcurve_list.add()
+					# fcurve_mappingsに新しいエントリを追加
+					item = context.scene.blidge.fcurve_mappings.add()
 					item.id = self.fcurve_id
 					item.animation_id = created_id
 					item.axis = self.fcurve_axis
@@ -264,8 +264,8 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 			self.report({'WARNING'}, "Animation項目を選択してください")
 			return {'CANCELLED'}
 
-		# fcurve_listに新しいエントリを追加
-		item = context.scene.blidge.fcurve_list.add()
+		# fcurve_mappingsに新しいエントリを追加
+		item = context.scene.blidge.fcurve_mappings.add()
 		item.id = self.fcurve_id
 		item.animation_id = self.animation_id
 		item.axis = self.fcurve_axis
@@ -276,21 +276,21 @@ class BLIDGE_OT_FCurveAccessorAdd(Operator):
 		return {'FINISHED'}
 
 
-class BLIDGE_OT_FCurveAccessorRemove(Operator):
-	"""F-Curveからアクセサを削除"""
-	bl_idname = 'blidge.fcurve_accessor_remove'
-	bl_label = "アクセサを削除"
+class BLIDGE_OT_FCurveMapperRemove(Operator):
+	"""F-Curveからマッパーを削除"""
+	bl_idname = 'blidge.fcurve_mapper_remove'
+	bl_label = "マッパーを削除"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	fcurve_id: bpy.props.StringProperty(name="Curve ID", default="")
 	animation_id: bpy.props.StringProperty(name="Animation ID", default="")
 
 	def execute(self, context):
-		# fcurve_listから該当するエントリを削除
+		# fcurve_mappingsから該当するエントリを削除
 		# 同じidとanimation_idを持つ最初の項目を削除
-		for index, curve in enumerate(context.scene.blidge.fcurve_list):
+		for index, curve in enumerate(context.scene.blidge.fcurve_mappings):
 			if curve.id == self.fcurve_id and curve.animation_id == self.animation_id:
-				context.scene.blidge.fcurve_list.remove(index)
+				context.scene.blidge.fcurve_mappings.remove(index)
 				break
 
 		# UIを更新
@@ -299,9 +299,9 @@ class BLIDGE_OT_FCurveAccessorRemove(Operator):
 		return {'FINISHED'}
 
 
-class BLIDGE_OT_FCurveAccessorChange(Operator):
-	"""F-Curveのアクセサのアニメーション項目を変更"""
-	bl_idname = 'blidge.fcurve_accessor_change'
+class BLIDGE_OT_FCurveMapperChange(Operator):
+	"""F-Curveのマッパーのアニメーション項目を変更"""
+	bl_idname = 'blidge.fcurve_mapper_change'
 	bl_label = "アニメーション項目を変更"
 	bl_options = {'REGISTER', 'UNDO'}
 
@@ -325,8 +325,8 @@ class BLIDGE_OT_FCurveAccessorChange(Operator):
 			self.report({'WARNING'}, "Animation項目を選択してください")
 			return {'CANCELLED'}
 
-		# fcurve_listから該当するエントリを探して変更
-		for curve in context.scene.blidge.fcurve_list:
+		# fcurve_mappingsから該当するエントリを探して変更
+		for curve in context.scene.blidge.fcurve_mappings:
 			if curve.id == self.fcurve_id and curve.animation_id == self.old_animation_id:
 				curve.animation_id = self.new_animation_id
 				break

@@ -35,8 +35,8 @@ BLidgeは、BlenderのシーンとアニメーションデータをJSON形式で
 
 **アニメーションシステム:**
 - `AnimationParser.get_animation_list()` → すべてのアクションからF-Curveを抽出
-- F-Curveは`scene.blidge.fcurve_list`を介して「アクセサー」にマッピングされます
-- アニメーションデータはアクセサーIDを介してシーングラフとマテリアルユニフォーム間で共有されます
+- F-Curveは`scene.blidge.fcurve_mappings`を介して「マッパー」にマッピングされます
+- アニメーションデータはマッパーIDを介してシーングラフとマテリアルユニフォーム間で共有されます
 - キーフレームデータにはベジエ補間用のハンドルが含まれます
 - 各アニメーション(`BLidgeAnimationProperty`)には`as_uniform`フラグがあり、マテリアルのUniformとして使用するかどうかを制御できます
 

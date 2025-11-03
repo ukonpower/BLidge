@@ -114,27 +114,27 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
             for fcurve in fcurves_to_remove:
                 obj.animation_data.action.fcurves.remove(fcurve)
         
-        # 関連するfcurve_listエントリを削除
-        # (このカスタムプロパティのF-Curveに紐づくアクセサーを削除)
+        # 関連するfcurve_mappingsエントリを削除
+        # (このカスタムプロパティのF-Curveに紐づくマッパーを削除)
         from ..animation.fcurve_id import get_fcurve_id
         fcurve_ids_to_remove = []
-        
+
         # まず削除対象のF-Curve IDを特定
         if obj.animation_data and obj.animation_data.action:
             for fcurve in obj.animation_data.action.fcurves:
                 if fcurve.data_path == data_path:
                     fcurve_id = get_fcurve_id(fcurve, False)
                     fcurve_ids_to_remove.append(fcurve_id)
-        
-        # fcurve_listから該当するエントリを削除
+
+        # fcurve_mappingsから該当するエントリを削除
         indices_to_remove = []
-        for i, fc in enumerate(scene.blidge.fcurve_list):
+        for i, fc in enumerate(scene.blidge.fcurve_mappings):
             if fc.id in fcurve_ids_to_remove:
                 indices_to_remove.append(i)
-        
+
         # 逆順で削除(インデックスのずれを防ぐ)
         for i in sorted(indices_to_remove, reverse=True):
-            scene.blidge.fcurve_list.remove(i)
+            scene.blidge.fcurve_mappings.remove(i)
         
         # リストから削除
         obj.blidge.custom_property_list.remove(self.item_index)
@@ -299,7 +299,7 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
                 return {'CANCELLED'}
 
         # 指定された軸が既に使用されていないか確認
-        for fc in scene.blidge.fcurve_list:
+        for fc in scene.blidge.fcurve_mappings:
             if fc.animation_id == self.animation_id and fc.axis == self.target_axis:
                 self.report({'ERROR'}, f"軸 [{self.target_axis.upper()}] は既に使用されています")
                 return {'CANCELLED'}
@@ -367,7 +367,7 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
 
         # F-Curveメタデータを作成
         try:
-            fcurve = scene.blidge.fcurve_list.add()
+            fcurve = scene.blidge.fcurve_mappings.add()
             fcurve.id = fcurve_id
             fcurve.axis = self.target_axis
             fcurve.animation_id = self.animation_id

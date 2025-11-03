@@ -41,7 +41,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     )
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
-    fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
+    fcurve_mappings: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
