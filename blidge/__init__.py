@@ -78,15 +78,12 @@ classes = [
 
 virtualmesh_renderer = BLidgeVirtualMeshRenderer()
 
-def register():
-    BLidgeProperties.register()
+def migrate_fcurve_list():
+    """マイグレーション: fcurve_list -> fcurve_mappings"""
+    try:
+        # axis EnumPropertyのマッピング（整数インデックス -> 文字列値）
+        axis_mapping = {0: 'x', 1: 'y', 2: 'z', 3: 'w'}
 
-    for c in classes:
-        bpy.utils.register_class(c)
-
-    # マイグレーション: fcurve_list -> fcurve_mappings
-    # 既存の.blendファイルとの互換性を保つため
-    def migrate_fcurve_list():
         for scene in bpy.data.scenes:
             # 古いプロパティが存在するか確認
             if hasattr(scene.blidge, 'get') and 'fcurve_list' in scene.blidge.keys():
@@ -94,18 +91,36 @@ def register():
                 old_list = scene.blidge['fcurve_list']
                 for old_item in old_list:
                     new_item = scene.blidge.fcurve_mappings.add()
+                    if 'index' in old_item:
+                        new_item.index = old_item['index']
                     if 'id' in old_item:
                         new_item.id = old_item['id']
                     if 'animation_id' in old_item:
                         new_item.animation_id = old_item['animation_id']
                     if 'axis' in old_item:
-                        new_item.axis = old_item['axis']
+                        axis_value = old_item['axis']
+                        # 整数の場合は文字列に変換
+                        if isinstance(axis_value, int):
+                            new_item.axis = axis_mapping.get(axis_value, 'x')
+                        else:
+                            new_item.axis = axis_value
                 # 古いプロパティを削除
                 del scene.blidge['fcurve_list']
-                print(f"BLidge: マイグレーション完了 - scene '{scene.name}' の fcurve_list を fcurve_mappings に移行しました")
+    except Exception as e:
+        print(f"BLidge: マイグレーション処理でエラー: {e}")
+        import traceback
+        traceback.print_exc()
 
-    # マイグレーションを実行
-    migrate_fcurve_list()
+    return None
+
+def register():
+    BLidgeProperties.register()
+
+    for c in classes:
+        bpy.utils.register_class(c)
+
+    # マイグレーションを遅延実行 (bpy.dataがアクセス可能になってから実行)
+    bpy.app.timers.register(migrate_fcurve_list, first_interval=0.1)
 
     # renderer
     virtualmesh_renderer.start(bpy.context)
