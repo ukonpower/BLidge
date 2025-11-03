@@ -65,8 +65,17 @@ def get_or_create_default_animation(obj, anim_type):
 
 
 def get_animation_items_for_enum(self, context):
-    """EnumProperty用にanimation項目を取得"""
-    items = []
+    """EnumProperty用にanimation項目を取得
+
+    F-Curveが属しているオブジェクト(target_object)がある場合は、
+    そのオブジェクトのanimation項目を優先的に表示する
+    """
+    target_obj_name = getattr(self, 'target_object', '')
+    target_obj = context.scene.objects.get(target_obj_name) if target_obj_name else None
+
+    target_items = []  # 対象オブジェクトのアニメーション項目
+    other_items = []   # その他のオブジェクトのアニメーション項目
+
     for obj in context.scene.objects:
         anim_list = obj.blidge.animation_list
         for i, anim in enumerate(anim_list):
@@ -74,7 +83,28 @@ def get_animation_items_for_enum(self, context):
             if anim.id:
                 # 表示名: "オブジェクト名 > アニメーション名"
                 display_name = f"{obj.name} > {anim.name if anim.name else anim.id[:8]}"
-                items.append((anim.id, display_name, f"Object: {obj.name}"))
+                item = (anim.id, display_name, f"Object: {obj.name}")
+
+                # 対象オブジェクトの項目とその他の項目を分ける
+                if target_obj and obj == target_obj:
+                    target_items.append(item)
+                else:
+                    other_items.append(item)
+
+    # 結果を組み立て
+    items = []
+
+    if target_items:
+        # 対象オブジェクトの項目を先頭に追加
+        items.extend(target_items)
+
+        # その他の項目がある場合はセパレーターを挿入
+        if other_items:
+            items.append(("SEP", "─── その他のオブジェクト ───", ""))
+            items.extend(other_items)
+    else:
+        # 対象オブジェクトがない場合は全て表示
+        items.extend(other_items)
 
     if not items:
         items.append(("NONE", "アニメーション項目がありません", ""))
