@@ -55,6 +55,7 @@ class SceneParser:
         # シーンデータの構築
         scene_data = {
             "animations": self.animation_data["list"],
+            "fcurves": self.animation_data["fcurves"],
             "root": scene_graph,
             "frame": {
                 'start': bpy.context.scene.frame_start,

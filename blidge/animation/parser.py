@@ -161,16 +161,29 @@ class AnimationParser:
 
     @staticmethod
     def _process_fcurve(fcurve: bpy.types.FCurve, animation_dict: Dict[str, int],
-                        animation_list: List[List]) -> None:
+                        animation_list: List[List], fcurve_list: List[Dict[str, Any]],
+                        fcurve_dict: Dict[str, int]) -> None:
         """F-Curveを処理してアニメーションリストに追加
 
         Args:
             fcurve: 処理対象のF-Curve
             animation_dict: アニメーションIDとインデックスのマッピング
             animation_list: アニメーションデータのリスト
+            fcurve_list: F-Curveデータの共有リスト
+            fcurve_dict: F-Curve IDとインデックスのマッピング
         """
         fcurve_props = AnimationParser._get_fcurve_props(fcurve)
+        fcurve_id = get_fcurve_id(fcurve, True)
 
+        # F-Curveがまだ共有リストにない場合は追加
+        if fcurve_id not in fcurve_dict:
+            parsed_fcurve = AnimationParser.parse_fcurve(fcurve)
+            fcurve_dict[fcurve_id] = len(fcurve_list)
+            fcurve_list.append(parsed_fcurve)
+
+        fcurve_index = fcurve_dict[fcurve_id]
+
+        # 各アニメーションIDに対してF-Curveインデックスを追加
         for fcurve_prop in fcurve_props:
             if not fcurve_prop.animation_id:
                 continue
@@ -179,18 +192,19 @@ class AnimationParser:
             animation_index = animation_dict.get(animation_id)
 
             if animation_index is not None:
-                parsed_fcurve = AnimationParser.parse_fcurve(fcurve)
-                animation_list[animation_index].append(parsed_fcurve)
+                animation_list[animation_index].append(fcurve_index)
 
     @staticmethod
     def parse_animation_list() -> Dict[str, Any]:
         """すべてのアニメーションをパース
 
         Returns:
-            list(アニメーションリスト)とdict(アニメーションIDマッピング)を含む辞書
+            list(アニメーションリスト)とdict(アニメーションIDマッピング)、fcurves(F-Curveリスト)を含む辞書
         """
         animation_list: List[List] = []
         animation_dict: Dict[str, int] = {}
+        fcurve_list: List[Dict[str, Any]] = []
+        fcurve_dict: Dict[str, int] = {}  # F-Curve IDとインデックスのマッピング
         counter = 0
 
         # 1パス目: すべてのanimation_idを収集して辞書とリストを構築
@@ -203,9 +217,9 @@ class AnimationParser:
                             fcurve_prop.animation_id, animation_dict, animation_list, counter
                         )
 
-        # 2パス目: F-Curveデータを該当するアニメーションに追加
+        # 2パス目: F-Curveデータを処理し、共有リストとアニメーションへの参照を構築
         for action in bpy.data.actions:
             for fcurve in action.fcurves:
-                AnimationParser._process_fcurve(fcurve, animation_dict, animation_list)
+                AnimationParser._process_fcurve(fcurve, animation_dict, animation_list, fcurve_list, fcurve_dict)
 
-        return {"list": animation_list, "dict": animation_dict}
+        return {"list": animation_list, "dict": animation_dict, "fcurves": fcurve_list}
