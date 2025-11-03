@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 import uuid
 
-from ..utils.fcurve_manager import get_fcurve_id
+from ..animation.fcurve_id import get_fcurve_id
 
 
 def detect_default_animation_type(fcurve_id):

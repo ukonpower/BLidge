@@ -116,7 +116,7 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
         
         # 関連するfcurve_listエントリを削除
         # (このカスタムプロパティのF-Curveに紐づくアクセサーを削除)
-        from ..utils.fcurve_manager import get_fcurve_id
+        from ..animation.fcurve_id import get_fcurve_id
         fcurve_ids_to_remove = []
         
         # まず削除対象のF-Curve IDを特定
@@ -346,7 +346,7 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
         # 作成されたF-CurveからIDを取得
         fcurve_id = None
         try:
-            from ..utils.fcurve_manager import get_fcurve_id
+            from ..animation.fcurve_id import get_fcurve_id
             
             # オブジェクトのアニメーションデータからF-Curveを探す
             if obj.animation_data and obj.animation_data.action:

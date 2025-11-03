@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils.fcurve_manager import get_fcurve_id
+from ..animation.fcurve_id import get_fcurve_id
 from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveAccessorClear)
 
 def get_fcurve_axis(fcurveId: str, axis: str):

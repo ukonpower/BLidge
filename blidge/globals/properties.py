@@ -1,7 +1,7 @@
 import bpy
 import uuid
 
-from ..utils.gltf import get_gltf_presets
+from ..export.gltf_preset import get_gltf_presets
 
 
 def ensure_animation_id(self, context):

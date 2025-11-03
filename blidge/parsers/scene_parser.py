@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 import bpy
-from .animation_parser import AnimationParser
+from ..animation.parser import AnimationParser
 from .object_parser import ObjectParser
 
 

@@ -2,7 +2,7 @@
 
 from typing import Dict, Any, List, Optional
 import bpy
-from ..utils.fcurve_manager import get_fcurve_id
+from .fcurve_id import get_fcurve_id
 
 
 class AnimationParser:

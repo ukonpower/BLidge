@@ -12,7 +12,7 @@ def get_fcurve_id(fcurve: bpy.types.FCurve, axis: bool = False):
 
 	if axis:
 		result += '_' + 'xyzw'[fcurve.array_index]
-		
+
 	return  result
 
 def get_fcurve_prop( id: str ):

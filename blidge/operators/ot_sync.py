@@ -1,7 +1,7 @@
 import bpy
 
 from ..parsers import SceneParser
-from ..utils.ws_server import WebSocketServer
+from ..network.websocket import WebSocketServer
 
 class BLIDGE_OT_Sync(bpy.types.Operator):
 
