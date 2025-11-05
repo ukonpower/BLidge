@@ -1,7 +1,7 @@
 import bpy
 
-from ..utils.fcurve_manager import get_fcurve_id
-from ..operators.ot_fcurve import (BLIDGE_OT_FCurveAccessorCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveAccessorClear)
+from ..animation.fcurve_id import get_fcurve_id
+from ..operators.ot_fcurve import (BLIDGE_OT_FCurveMapperCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveMapperClear)
 
 def get_fcurve_axis(fcurveId: str, axis: str):
 
@@ -33,7 +33,7 @@ def get_animation_items(scene, context):
     return items
 
 
-class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
+class BLIDGE_PT_FCurveMapper(bpy.types.Panel):
 
     bl_label = 'BLidge'
     bl_category = 'F-Curve'
@@ -61,25 +61,25 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
             else:
                 header.label(text=fcurve_id, icon='FCURVE')
 
-            # このF-CurveのIDに紐づくすべてのアクセサを取得
-            accessors = [curve for curve in bpy.context.scene.blidge.fcurve_list if curve.id == fcurve_id]
+            # このF-CurveのIDに紐づくすべてのマッパーを取得
+            mappers = [curve for curve in bpy.context.scene.blidge.fcurve_mappings if curve.id == fcurve_id]
 
-            # アクセサリストを表示
-            if len(accessors) > 0:
-                accessor_box = main_box.box()
-                accessor_box.label(text="アクセサリスト", icon='LINENUMBERS_ON')
-                
-                for accessor in accessors:
-                    # 各アクセサを表示
-                    accessor_row = accessor_box.row(align=True)
+            # マッパーリストを表示
+            if len(mappers) > 0:
+                mapper_box = main_box.box()
+                mapper_box.label(text="マッパーリスト", icon='LINENUMBERS_ON')
+
+                for mapper in mappers:
+                    # 各マッパーを表示
+                    mapper_row = mapper_box.row(align=True)
                     
                     # アニメーション情報を検索
                     found_obj = None
                     found_anim = None
-                    if accessor.animation_id:
+                    if mapper.animation_id:
                         for obj in context.scene.objects:
                             for anim in obj.blidge.animation_list:
-                                if anim.id == accessor.animation_id:
+                                if anim.id == mapper.animation_id:
                                     found_obj = obj
                                     found_anim = anim
                                     break
@@ -89,26 +89,26 @@ class BLIDGE_PT_FCurveAccessor(bpy.types.Panel):
                     if found_anim:
                         # アニメーション名を表示
                         info_text = f"{found_obj.name} > {found_anim.name if found_anim.name else found_anim.id[:8]}"
-                        accessor_row.label(text=info_text, icon='ANIM_DATA')
+                        mapper_row.label(text=info_text, icon='ANIM_DATA')
                     else:
-                        accessor_row.label(text="(未設定)", icon='ERROR')
+                        mapper_row.label(text="(未設定)", icon='ERROR')
 
                     # Axis設定
-                    accessor_row.prop(accessor, 'axis', text='')
+                    mapper_row.prop(mapper, 'axis', text='')
 
                     # 変更ボタン
-                    op_change = accessor_row.operator('blidge.fcurve_accessor_change', text="", icon='FILE_REFRESH')
+                    op_change = mapper_row.operator('blidge.fcurve_mapper_change', text="", icon='FILE_REFRESH')
                     op_change.fcurve_id = fcurve_id
-                    op_change.old_animation_id = accessor.animation_id
+                    op_change.old_animation_id = mapper.animation_id
 
                     # 削除ボタン
-                    op_delete = accessor_row.operator('blidge.fcurve_accessor_remove', text="", icon='X')
+                    op_delete = mapper_row.operator('blidge.fcurve_mapper_remove', text="", icon='X')
                     op_delete.fcurve_id = fcurve_id
-                    op_delete.animation_id = accessor.animation_id
+                    op_delete.animation_id = mapper.animation_id
 
-            # アクセサ追加ボタン
+            # マッパー追加ボタン
             add_row = main_box.row()
-            op_add = add_row.operator('blidge.fcurve_accessor_add', text="アクセサを追加", icon='PLUS')
+            op_add = add_row.operator('blidge.fcurve_mapper_add', text="マッパーを追加", icon='PLUS')
             op_add.fcurve_id = fcurve_id
             op_add.fcurve_axis = get_fcurve_axis(fcurve_id, 'xyzw'[fcurve.array_index])
             if active_obj:

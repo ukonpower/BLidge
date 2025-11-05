@@ -1,7 +1,7 @@
 import bpy
 
 from ..parsers import SceneParser
-from ..utils.ws_server import WebSocketServer
+from ..network.websocket import WebSocketServer
 
 class BLIDGE_OT_Sync(bpy.types.Operator):
 
@@ -15,6 +15,7 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     # frame
     sent_frame = None
     sent_playing = None
+    sent_scrubbing = None
 
     @classmethod
     def is_running(cls):
@@ -46,16 +47,21 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         screen = bpy.context.screen
 
         playing = False
+        scrubbing = False
 
         if screen != None:
             playing = screen.is_animation_playing
+            # Blender 2.80以降で利用可能なis_scrubbingをチェック
+            if hasattr(screen, 'is_scrubbing'):
+                scrubbing = screen.is_scrubbing
 
         return {
             'start': scene.frame_start,
             'end': scene.frame_end,
             'current': scene.frame_current,
             "fps": scene.render.fps,
-            'playing': playing
+            'playing': playing,
+            'scrubbing': scrubbing
         }
 
     @classmethod
@@ -65,10 +71,13 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     @classmethod
     def on_change_frame(cls, scene: bpy.types.Scene, any):
         frame_data = cls.get_frame()
-        if frame_data["current"] != cls.sent_frame or frame_data["playing"] != cls.sent_playing:
+        if (frame_data["current"] != cls.sent_frame or
+            frame_data["playing"] != cls.sent_playing or
+            frame_data["scrubbing"] != cls.sent_scrubbing):
             cls.ws.broadcast("sync/timeline", frame_data)
             cls.sent_frame = frame_data["current"]
             cls.sent_playing = frame_data["playing"]
+            cls.sent_scrubbing = frame_data["scrubbing"]
     
     @classmethod
     def on_start_playing(cls, scene: bpy.types.Scene, any):

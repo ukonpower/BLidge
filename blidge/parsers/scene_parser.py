@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 import bpy
-from .animation_parser import AnimationParser
+from ..animation.parser import AnimationParser
 from .object_parser import ObjectParser
 
 
@@ -54,7 +54,9 @@ class SceneParser:
 
         # シーンデータの構築
         scene_data = {
+            "version": 2,  # データフォーマットバージョン（圧縮最適化適用）
             "animations": self.animation_data["list"],
+            "fcurves": self.animation_data["fcurves"],
             "root": scene_graph,
             "frame": {
                 'start': bpy.context.scene.frame_start,

@@ -1,7 +1,7 @@
 import bpy
 import uuid
 
-from ..utils.gltf import get_gltf_presets
+from ..export.gltf_preset import get_gltf_presets
 
 
 def ensure_animation_id(self, context):
@@ -41,7 +41,7 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     )
     export_gltf_export_on_save: bpy.props.BoolProperty(name="export on save", default=False)
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
-    fcurve_list: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
+    fcurve_mappings: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
@@ -126,6 +126,12 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
+    uuid: bpy.props.StringProperty(
+        name="UUID",
+        description="8文字の短縮UUID（オブジェクト識別用）",
+        default="",
+        maxlen=8
+    )
 
 classes = [
     BLidgeGeometryCubeProperty,
