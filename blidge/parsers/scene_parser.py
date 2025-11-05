@@ -54,6 +54,7 @@ class SceneParser:
 
         # シーンデータの構築
         scene_data = {
+            "version": 2,  # データフォーマットバージョン（圧縮最適化適用）
             "animations": self.animation_data["list"],
             "fcurves": self.animation_data["fcurves"],
             "root": scene_graph,

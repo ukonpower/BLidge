@@ -13,6 +13,22 @@ except ImportError:
     print("websocket not found")
 
 
+class CompactJSONEncoder(json.JSONEncoder):
+    """数値精度を3桁に制御するカスタムJSONエンコーダー"""
+
+    def iterencode(self, o, _one_shot=False):
+        """数値を3桁に丸める"""
+        for chunk in super().iterencode(o, _one_shot):
+            yield chunk
+
+    def encode(self, o):
+        """オブジェクトをJSON文字列にエンコード"""
+        if isinstance(o, float):
+            # 小数点以下3桁に制限
+            return format(round(o, 3), '.3f').rstrip('0').rstrip('.')
+        return super().encode(o)
+
+
 class WebSocketServer:
 
     server = None
@@ -54,7 +70,7 @@ class WebSocketServer:
         return json.dumps({
             "type": type,
             "data": data
-        })
+        }, cls=CompactJSONEncoder, separators=(',', ':'))
 
     def send(self, client, type, data):
         message_str = self.get_str(type, data)

@@ -4,6 +4,13 @@ from typing import Dict, Any, List, Optional
 import bpy
 from .fcurve_id import get_fcurve_id
 
+# 補間タイプのマッピング: L(Linear)=0, C(Constant)=1, B(Bezier)=2
+INTERPOLATION_MAP = {
+    'L': 0,  # Linear
+    'C': 1,  # Constant
+    'B': 2,  # Bezier
+}
+
 
 class AnimationParser:
     """アニメーションデータのパース処理を担当"""
@@ -41,21 +48,24 @@ class AnimationParser:
             before_keyframe: 前のキーフレーム
 
         Returns:
-            [補間タイプ, [座標とハンドル]]
+            [補間タイプ(数値), [座標とハンドル]]
         """
         c = AnimationParser.parse_vector(keyframe.co)
-        interpolation = keyframe.interpolation[0]
+        interpolation_char = keyframe.interpolation[0]
+        # 補間タイプを数値に変換 (L→0, C→1, B→2)
+        interpolation_code = INTERPOLATION_MAP.get(interpolation_char, 0)
+
         parsed_keyframe = [
-            interpolation,
+            interpolation_code,
             [c["x"], c["y"]],
         ]
 
-        # ベジエ補間の場合、ハンドル情報を追加
-        if interpolation == 'B' or (before_keyframe is not None and before_keyframe.interpolation[0] == 'B'):
+        # ベジエ補間の場合のみ、ハンドル情報を追加
+        if interpolation_char == 'B' or (before_keyframe is not None and before_keyframe.interpolation[0] == 'B'):
             h_l = AnimationParser.parse_vector(keyframe.handle_left)
             parsed_keyframe[1].extend([h_l["x"], h_l["y"]])
 
-        if interpolation == 'B':
+        if interpolation_char == 'B':
             h_r = AnimationParser.parse_vector(keyframe.handle_right)
             parsed_keyframe[1].extend([h_r["x"], h_r["y"]])
 
@@ -73,15 +83,29 @@ class AnimationParser:
             invert: Y軸を反転するかどうか
 
         Returns:
-            パースされたキーフレームのリスト
+            パースされたキーフレームのリスト（差分エンコーディング適用）
         """
         parsed_keyframes = []
+        prev_frame = 0
+
         for i, keyframe in enumerate(keyframes):
             if i > 0:
                 prev_keyframe = keyframes[i - 1]
                 parsed_keyframe = AnimationParser.parse_keyframe(keyframe, prev_keyframe)
             else:
                 parsed_keyframe = AnimationParser.parse_keyframe(keyframe, None)
+
+            # フレーム番号を差分エンコーディングに変換
+            current_frame = parsed_keyframe[1][0]
+            if i == 0:
+                # 最初のキーフレームは絶対値
+                frame_value = current_frame
+            else:
+                # 2番目以降は前のフレームからの差分
+                frame_value = current_frame - prev_frame
+
+            parsed_keyframe[1][0] = frame_value
+            prev_frame = current_frame
 
             # Y軸の反転処理
             if invert:
