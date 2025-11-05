@@ -10,6 +10,8 @@ from .mesh_parser import MeshParser
 from .material_parser import MaterialParser
 
 
+from ..utils.uuid import get_object_uuid
+
 class ObjectParser:
     """個別オブジェクトのパース処理を統括し、専門パーサーに委譲"""
 
@@ -42,6 +44,7 @@ class ObjectParser:
         object_data = {
             'name': obj.name,
             'type': obj_type,
+            'uuid': get_object_uuid(obj),
             'position': convert_position(obj.location),
             'rotation': convert_rotation(obj.rotation_euler),
             'scale': convert_scale(obj.scale),

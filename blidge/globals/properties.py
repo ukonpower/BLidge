@@ -126,6 +126,12 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
+    uuid: bpy.props.StringProperty(
+        name="UUID",
+        description="8文字の短縮UUID（オブジェクト識別用）",
+        default="",
+        maxlen=8
+    )
 
 classes = [
     BLidgeGeometryCubeProperty,
