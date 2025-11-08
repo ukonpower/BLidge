@@ -4,6 +4,7 @@ import json
 import sys
 
 from ..globals.config import Globals
+from ..utils.json_utils import round_floats
 
 sys.path.insert(0, Globals.libpath)
 
@@ -11,22 +12,6 @@ try:
     from websocket_server import WebsocketServer
 except ImportError:
     print("websocket not found")
-
-
-class CompactJSONEncoder(json.JSONEncoder):
-    """数値精度を3桁に制御するカスタムJSONエンコーダー"""
-
-    def iterencode(self, o, _one_shot=False):
-        """数値を3桁に丸める"""
-        for chunk in super().iterencode(o, _one_shot):
-            yield chunk
-
-    def encode(self, o):
-        """オブジェクトをJSON文字列にエンコード"""
-        if isinstance(o, float):
-            # 小数点以下3桁に制限
-            return format(round(o, 3), '.3f').rstrip('0').rstrip('.')
-        return super().encode(o)
 
 
 class WebSocketServer:
@@ -67,10 +52,12 @@ class WebSocketServer:
     # send
 
     def get_str(self, type, data):
+        # 数値精度を3桁に丸める
+        rounded_data = round_floats(data)
         return json.dumps({
             "type": type,
-            "data": data
-        }, cls=CompactJSONEncoder, separators=(',', ':'))
+            "data": rounded_data
+        }, separators=(',', ':'))
 
     def send(self, client, type, data):
         message_str = self.get_str(type, data)

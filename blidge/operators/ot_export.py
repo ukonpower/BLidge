@@ -6,6 +6,7 @@ import json
 
 from ..parsers import SceneParser
 from ..operators.ot_sync import BLIDGE_OT_Sync
+from ..utils.json_utils import round_floats
 
 
 class BLIDGE_OT_GLTFExport(Operator):
@@ -59,8 +60,11 @@ class BLIDGE_OT_SceneExport(Operator):
         data = SceneParser().parse_scene()
         path = bpy.path.abspath(scene.blidge.export_scene_data_path)
 
+        # 数値精度を3桁に丸める
+        rounded_data = round_floats(data)
+
         with open(path, mode='wt', encoding='utf-8') as file:
-            json.dump(json.loads(json.dumps(data), parse_float=lambda x: round(float(x), 3)), file, ensure_ascii=False)
+            json.dump(rounded_data, file, ensure_ascii=False, separators=(',', ':'))
 
         return {'FINISHED'}
 
