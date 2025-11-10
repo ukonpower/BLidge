@@ -41,5 +41,8 @@ class LightParser:
                 'angle': light.spot_size,
                 'blend': light.spot_blend
             })
+            # カスタム距離が有効な場合はdistanceを出力
+            if light.use_custom_distance:
+                param['distance'] = light.cutoff_distance
 
         return param

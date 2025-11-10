@@ -15,6 +15,8 @@ def detect_default_animation_type(fcurve_id):
         return 'scale'
     elif 'hide_render' in fcurve_id.lower():
         return 'hide'
+    elif 'energy' in fcurve_id.lower():
+        return 'power'
     return None
 
 
@@ -23,7 +25,7 @@ def get_or_create_default_animation(obj, anim_type):
 
     Args:
         obj: Blenderオブジェクト
-        anim_type: 'position', 'rotation', 'scale', 'hide'
+        anim_type: 'position', 'rotation', 'scale', 'hide', 'power'
 
     Returns:
         animation項目のID
@@ -40,8 +42,8 @@ def get_or_create_default_animation(obj, anim_type):
     anim.editable = False
 
     # 優先順位に基づいて適切な位置に挿入
-    # position, rotation, scale, hideの順
-    priority_order = ['position', 'rotation', 'scale', 'hide']
+    # position, rotation, scale, hide, powerの順
+    priority_order = ['position', 'rotation', 'scale', 'hide', 'power']
     target_priority = priority_order.index(anim_type) if anim_type in priority_order else len(priority_order)
 
     # 新しく追加したアイテムのインデックス
