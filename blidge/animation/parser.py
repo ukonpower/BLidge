@@ -107,6 +107,13 @@ class AnimationParser:
             parsed_keyframe[1][0] = frame_value
             prev_frame = current_frame
 
+            # 次のキーフレームまでが1フレーム未満の場合、constantに変更
+            if i < len(keyframes) - 1:
+                next_frame = keyframes[i + 1].co[0]
+                frame_distance = next_frame - current_frame
+                if frame_distance < 1.0:
+                    parsed_keyframe[0] = INTERPOLATION_MAP['C']  # Constant
+
             # Y軸の反転処理
             if invert:
                 parsed_keyframe[1][1] *= -1

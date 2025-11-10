@@ -9,6 +9,10 @@ def get_fcurve_axis(fcurveId: str, axis: str):
     if 'energy' in fcurveId.lower():
         return 'w'
 
+    # ライトのcolorの場合はそのままx,y,z軸を返す（RGB）
+    if 'data.color' in fcurveId.lower():
+        return axis
+
     axisList = 'xyzw'
 
     if( not fcurveId.find( 'Shader NodetreeAction' ) > -1 ):
