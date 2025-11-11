@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "animations": [
+    [
+      0
+    ]
+  ],
+  "fcurves": [
+    {
+      "axis": "x",
+      "k": [
+        [
+          2,
+          [
+            26.0,
+            0.0,
+            25.0,
+            0.0,
+            27.0,
+            0.0
+          ]
+        ]
+      ]
+    },
+    {
+      "axis": "x",
+      "k": [
+        [
+          2,
+          [
+            26.0,
+            0.0,
+            25.0,
+            0.0,
+            27.0,
+            0.0
+          ]
+        ]
+      ]
+    }
+  ],
+  "root": {
+    "name": "root",
+    "parent": null,
+    "children": [
+      {
+        "name": "Camera",
+        "uuid": "d7b3bbdf",
+        "position": [
+          7.359,
+          4.958,
+          6.926
+        ],
+        "type": "camera",
+        "rotation": [
+          1.109,
+          0.815,
+          -0.0
+        ],
+        "param": {
+          "fov": 22.895
+        }
+      },
+      {
+        "name": "Cube",
+        "uuid": "e5d5be0e",
+        "position": [
+          -0.001,
+          0.045,
+          -0.027
+        ],
+        "custom_properties": {
+          "test": {
+            "type": "float",
+            "value": 0.0
+          }
+        },
+        "animation": {
+          "uState": 0
+        }
+      },
+      {
+        "name": "Cube.001",
+        "uuid": "ae1cbdfa",
+        "position": [
+          -1.372,
+          0.559,
+          -2.493
+        ],
+        "custom_properties": {
+          "test": {
+            "type": "float",
+            "value": 0.0
+          }
+        },
+        "animation": {
+          "uStateaaa": 0
+        }
+      },
+      {
+        "name": "Light",
+        "uuid": "7b3c8d19",
+        "position": [
+          4.076,
+          5.904,
+          -1.005
+        ],
+        "type": "light",
+        "rotation": [
+          0.65,
+          1.866,
+          -0.055
+        ],
+        "param": {
+          "shadow_map": false,
+          "color": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "intensity": 1000.0
+        }
+      }
+    ],
+    "type": "empty",
+    "visible": true
+  },
+  "frame": {
+    "start": 1,
+    "end": 250,
+    "fps": 24,
+    "playing": false
+  }
+}

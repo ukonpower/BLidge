@@ -128,7 +128,7 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
     custom_property_list: bpy.props.CollectionProperty(type=BLidgeCustomProperty)
-    custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
+    custom_props_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
     uuid: bpy.props.StringProperty(
