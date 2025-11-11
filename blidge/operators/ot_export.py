@@ -64,7 +64,7 @@ class BLIDGE_OT_SceneExport(Operator):
         rounded_data = round_floats(data)
 
         with open(path, mode='wt', encoding='utf-8') as file:
-            json.dump(rounded_data, file, ensure_ascii=False, separators=(',', ':'))
+            json.dump(rounded_data, file, ensure_ascii=False, indent=2)
 
         return {'FINISHED'}
 
