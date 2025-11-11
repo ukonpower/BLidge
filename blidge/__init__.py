@@ -32,6 +32,7 @@ if "bpy" in locals():
     imp.reload(BLIDGE_OT_FCurveMapperAdd)
     imp.reload(BLIDGE_OT_FCurveMapperRemove)
     imp.reload(BLIDGE_OT_FCurveMapperChange)
+    imp.reload(BLIDGE_OT_CheckUUID)
     imp.reload(BLIDGE_PT_Controls)
     imp.reload(BLIDGE_PT_ObjectPropertie)
     imp.reload(BLIDGE_PT_FCurveMapper)
@@ -45,6 +46,7 @@ else:
     from .operators.ot_sync import BLIDGE_OT_Sync
     from .operators.ot_fcurve import BLIDGE_OT_FCurveMapperCreate, BLIDGE_OT_FCurveSetAnimationID, BLIDGE_OT_FCurveMapperClear, BLIDGE_OT_FCurveMapperAdd, BLIDGE_OT_FCurveMapperRemove, BLIDGE_OT_FCurveMapperChange
     from .operators.ot_object import BLIDGE_OT_AddCustomProperty, BLIDGE_OT_RemoveCustomProperty, BLIDGE_OT_ObjectUniformCreate, BLIDGE_OT_ObjectUniformRemove, BLIDGE_OT_ObjectAnimationCreate, BLIDGE_OT_ObjectAnimationRemove, BLIDGE_OT_ObjectAnimationToggleUniform, BLIDGE_OT_AddFCurveToAnimation
+    from .operators.ot_uuid import BLIDGE_OT_CheckUUID
     from .panels.pt_view_controls import BLIDGE_PT_Controls
     from .panels.pt_prop_object import BLIDGE_PT_ObjectPropertie
     from .panels.pt_graph_fcurve import BLIDGE_PT_FCurveMapper
@@ -70,6 +72,7 @@ classes = [
     BLIDGE_OT_ObjectAnimationRemove,
     BLIDGE_OT_ObjectAnimationToggleUniform,
     BLIDGE_OT_AddFCurveToAnimation,
+    BLIDGE_OT_CheckUUID,
     BLIDGE_PT_Controls,
     BLIDGE_PT_install_dependencies,
     BLIDGE_PT_ObjectPropertie,

@@ -43,6 +43,11 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_mappings: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
+    uuid_registry: bpy.props.StringProperty(
+        name="UUID Registry",
+        description="UUID to as_pointer mapping (JSON形式)",
+        default="{}"
+    )
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=2)
