@@ -151,14 +151,14 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         # ヘッダー行（クリックで展開/折りたたみ）
         header_row = box_custom.row()
-        icon = 'DOWNARROW_HLT' if object.blidge.custom_properties_expanded else 'RIGHTARROW'
-        header_row.prop(object.blidge, "custom_properties_expanded",
+        icon = 'DOWNARROW_HLT' if object.blidge.custom_props_expanded else 'RIGHTARROW'
+        header_row.prop(object.blidge, "custom_props_expanded",
                        text="Custom Properties",
                        icon=icon,
                        emboss=False)
 
         # 展開されている場合のみ内容を表示
-        if object.blidge.custom_properties_expanded:
+        if object.blidge.custom_props_expanded:
             # カスタムプロパティリスト表示
             custom_property_list = object.blidge.custom_property_list
             for i, item in enumerate(custom_property_list):
