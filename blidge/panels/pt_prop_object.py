@@ -50,6 +50,10 @@ class BLIDGE_PT_ObjectPropertie(bpy.types.Panel):
 
         layout.prop(object.blidge, "render_virtual_mesh", text="Render virtual mesh")
 
+        # export
+
+        layout.prop(object.blidge, "export_transform", text="Transform出力")
+
         # animations
 
         scene = bpy.context.scene

@@ -131,6 +131,11 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     custom_props_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
+    export_transform: bpy.props.BoolProperty(
+        name="Transform出力",
+        description="position, rotation, scaleをエクスポートに含めるかどうか",
+        default=True
+    )
     uuid: bpy.props.StringProperty(
         name="UUID",
         description="8文字の短縮UUID（オブジェクト識別用）",

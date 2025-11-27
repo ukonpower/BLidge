@@ -69,52 +69,35 @@ class ObjectParser:
         elif obj.type == 'LIGHT':
             obj_type = 'light'
 
-        # 基本データ（必須項目のみ）
+        # 基本データ(必須項目のみ)
         object_data = {
             'name': obj.name,
             'uuid': get_object_uuid(obj),
-            'position': convert_position(obj.location),
         }
+
+        # export_transformフラグがTrueの場合のみtransformを出力
+        if obj.blidge.export_transform:
+            object_data['position'] = convert_position(obj.location)
+
+            # rotation: デフォルト値([0,0,0])以外の場合のみ追加
+            rotation = convert_rotation(obj.rotation_euler)
+            if not _is_default_value('rotation', rotation):
+                object_data['rotation'] = rotation
+
+            # scale: デフォルト値([1,1,1])以外の場合のみ追加
+            scale = convert_scale(obj.scale)
+            if not _is_default_value('scale', scale):
+                object_data['scale'] = scale
 
         # type: デフォルト値('empty')以外の場合のみ追加
         if not _is_default_value('type', obj_type):
             object_data['type'] = obj_type
 
-        # rotation: デフォルト値([0,0,0])以外の場合のみ追加
-        rotation = convert_rotation(obj.rotation_euler)
-        if not _is_default_value('rotation', rotation):
-            object_data['rotation'] = rotation
-
-        # scale: デフォルト値([1,1,1])以外の場合のみ追加
-        scale = convert_scale(obj.scale)
-        if not _is_default_value('scale', scale):
-            object_data['scale'] = scale
 
         # visible: デフォルト値(True)以外の場合のみ追加
         visible = not obj.hide_render
         if not _is_default_value('visible', visible):
             object_data['visible'] = visible
-
-        # カスタムプロパティ
-        custom_property_list = obj.blidge.custom_property_list
-        if len(custom_property_list) > 0:
-            object_data['custom_properties'] = {}
-
-            for custom_prop in custom_property_list:
-                # 値を取得
-                if custom_prop.prop_type == 'FLOAT':
-                    value = custom_prop.value_float
-                elif custom_prop.prop_type == 'INT':
-                    value = custom_prop.value_int
-                elif custom_prop.prop_type == 'BOOL':
-                    value = custom_prop.value_bool
-                else:
-                    continue
-
-                object_data['custom_properties'][custom_prop.name] = {
-                    'type': custom_prop.prop_type.lower(),
-                    'value': value
-                }
 
         # アニメーション
         animation_list = obj.blidge.animation_list
