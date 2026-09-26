@@ -43,6 +43,11 @@ class BLidgeControlsProperty(bpy.types.PropertyGroup):
     export_scene_data_path: bpy.props.StringProperty(name="path", default="./", subtype='FILE_PATH')
     fcurve_mappings: bpy.props.CollectionProperty(type=BLidgeFCurveProperty, name="fcurve")
     object_animation_list_index: bpy.props.IntProperty(name = "object animation list index", default = 0)
+    uuid_registry: bpy.props.StringProperty(
+        name="UUID Registry",
+        description="UUID to as_pointer mapping (JSON形式)",
+        default="{}"
+    )
 
 class BLidgeGeometryCubeProperty(bpy.types.PropertyGroup):
     x: bpy.props.FloatProperty(default=2)
@@ -123,9 +128,20 @@ class BLidgeObjectProperty(bpy.types.PropertyGroup):
     param_sphere: bpy.props.PointerProperty( type=BLidgeGeometrySphereProperty)
     param_light: bpy.props.PointerProperty( type=BLidgeLightProperty)
     custom_property_list: bpy.props.CollectionProperty(type=BLidgeCustomProperty)
-    custom_properties_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
+    custom_props_expanded: bpy.props.BoolProperty(name="Custom Properties Expanded", default=False)
     animation_list: bpy.props.CollectionProperty(type=BLidgeAnimationProperty)
     render_virtual_mesh: bpy.props.BoolProperty(default=False)
+    export_transform: bpy.props.BoolProperty(
+        name="Transform出力",
+        description="position, rotation, scaleをエクスポートに含めるかどうか",
+        default=True
+    )
+    uuid: bpy.props.StringProperty(
+        name="UUID",
+        description="8文字の短縮UUID（オブジェクト識別用）",
+        default="",
+        maxlen=8
+    )
 
 classes = [
     BLidgeGeometryCubeProperty,

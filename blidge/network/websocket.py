@@ -4,6 +4,7 @@ import json
 import sys
 
 from ..globals.config import Globals
+from ..utils.json_utils import round_floats
 
 sys.path.insert(0, Globals.libpath)
 
@@ -51,10 +52,12 @@ class WebSocketServer:
     # send
 
     def get_str(self, type, data):
+        # 数値精度を3桁に丸める
+        rounded_data = round_floats(data)
         return json.dumps({
             "type": type,
-            "data": data
-        })
+            "data": rounded_data
+        }, separators=(',', ':'))
 
     def send(self, client, type, data):
         message_str = self.get_str(type, data)

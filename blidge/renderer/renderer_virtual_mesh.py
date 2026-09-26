@@ -1,5 +1,5 @@
 
-import bpy, bgl
+import bpy
 import gpu
 from math import *
 from mathutils import *

@@ -10,6 +10,37 @@ from .mesh_parser import MeshParser
 from .material_parser import MaterialParser
 
 
+from ..utils.uuid import get_object_uuid
+
+
+def _is_default_value(key: str, value: Any) -> bool:
+    """デフォルト値かどうかを判定
+
+    Args:
+        key: プロパティ名
+        value: 判定する値
+
+    Returns:
+        デフォルト値の場合True
+    """
+    defaults = {
+        'rotation': [0, 0, 0],
+        'scale': [1, 1, 1],
+        'visible': True,
+        'type': 'empty'
+    }
+
+    if key not in defaults:
+        return False
+
+    default = defaults[key]
+    if isinstance(default, list):
+        # リストの場合は各要素を比較（小数点誤差を考慮）
+        return len(value) == len(default) and all(abs(v - d) < 0.001 for v, d in zip(value, default))
+    else:
+        return value == default
+
+
 class ObjectParser:
     """個別オブジェクトのパース処理を統括し、専門パーサーに委譲"""
 
@@ -38,36 +69,35 @@ class ObjectParser:
         elif obj.type == 'LIGHT':
             obj_type = 'light'
 
-        # 基本データ
+        # 基本データ(必須項目のみ)
         object_data = {
             'name': obj.name,
-            'type': obj_type,
-            'position': convert_position(obj.location),
-            'rotation': convert_rotation(obj.rotation_euler),
-            'scale': convert_scale(obj.scale),
-            'visible': not obj.hide_render,
+            'uuid': get_object_uuid(obj),
         }
 
-        # カスタムプロパティ
-        custom_property_list = obj.blidge.custom_property_list
-        if len(custom_property_list) > 0:
-            object_data['custom_properties'] = {}
+        # export_transformフラグがTrueの場合のみtransformを出力
+        if obj.blidge.export_transform:
+            object_data['position'] = convert_position(obj.location)
 
-            for custom_prop in custom_property_list:
-                # 値を取得
-                if custom_prop.prop_type == 'FLOAT':
-                    value = custom_prop.value_float
-                elif custom_prop.prop_type == 'INT':
-                    value = custom_prop.value_int
-                elif custom_prop.prop_type == 'BOOL':
-                    value = custom_prop.value_bool
-                else:
-                    continue
+            # rotation: デフォルト値([0,0,0])以外の場合のみ追加
+            rotation = convert_rotation(obj.rotation_euler)
+            if not _is_default_value('rotation', rotation):
+                object_data['rotation'] = rotation
 
-                object_data['custom_properties'][custom_prop.name] = {
-                    'type': custom_prop.prop_type.lower(),
-                    'value': value
-                }
+            # scale: デフォルト値([1,1,1])以外の場合のみ追加
+            scale = convert_scale(obj.scale)
+            if not _is_default_value('scale', scale):
+                object_data['scale'] = scale
+
+        # type: デフォルト値('empty')以外の場合のみ追加
+        if not _is_default_value('type', obj_type):
+            object_data['type'] = obj_type
+
+
+        # visible: デフォルト値(True)以外の場合のみ追加
+        visible = not obj.hide_render
+        if not _is_default_value('visible', visible):
+            object_data['visible'] = visible
 
         # アニメーション
         animation_list = obj.blidge.animation_list

@@ -4,6 +4,7 @@ from typing import Dict, Any
 import bpy
 from ..animation.parser import AnimationParser
 from .object_parser import ObjectParser
+from ..utils.uuid import ensure_unique_uuids
 
 
 class SceneParser:
@@ -46,6 +47,9 @@ class SceneParser:
         Returns:
             アニメーション、シーングラフ、フレーム情報を含む辞書
         """
+        # エクスポート前にUUID重複チェック
+        ensure_unique_uuids()
+
         # アニメーションデータのパース
         self.animation_data = AnimationParser.parse_animation_list()
 
@@ -54,6 +58,7 @@ class SceneParser:
 
         # シーンデータの構築
         scene_data = {
+            "version": 2,  # データフォーマットバージョン（圧縮最適化適用）
             "animations": self.animation_data["list"],
             "fcurves": self.animation_data["fcurves"],
             "root": scene_graph,

@@ -17,6 +17,9 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
     sent_playing = None
     sent_scrubbing = None
 
+    # selection
+    sent_selection = None
+
     @classmethod
     def is_running(cls):
         return cls.running
@@ -35,9 +38,14 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
             bpy.app.handlers.frame_change_post.remove(cls.on_change_frame)
         except ValueError:
             pass
-        
+
         try:
             bpy.app.handlers.save_post.remove(cls.on_save)
+        except ValueError:
+            pass
+
+        try:
+            bpy.app.handlers.depsgraph_update_post.remove(cls.on_selection_change)
         except ValueError:
             pass
 
@@ -69,6 +77,48 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         return SceneParser().parse_scene()
 
     @classmethod
+    def get_selection(cls):
+        """現在の選択状態を取得"""
+        try:
+            # view_layerから直接アクティブオブジェクトを取得
+            view_layer = bpy.context.view_layer
+            active_obj = view_layer.objects.active if view_layer else None
+
+            # 選択オブジェクトを取得
+            selected_objs = []
+            for obj in bpy.context.scene.objects:
+                if obj.select_get():
+                    selected_objs.append(obj)
+
+            # アクティブオブジェクト
+            active_data = None
+            if active_obj:
+                active_data = {
+                    "uuid": active_obj.blidge.uuid if active_obj.blidge.uuid else "",
+                    "name": active_obj.name
+                }
+
+            # 選択オブジェクトリスト
+            selected_data = []
+            for obj in selected_objs:
+                selected_data.append({
+                    "uuid": obj.blidge.uuid if obj.blidge.uuid else "",
+                    "name": obj.name,
+                    "type": obj.blidge.type
+                })
+
+            return {
+                "active": active_data,
+                "selected": selected_data
+            }
+        except Exception as e:
+            print(f"BLidge: get_selection error: {e}")
+            return {
+                "active": None,
+                "selected": []
+            }
+
+    @classmethod
     def on_change_frame(cls, scene: bpy.types.Scene, any):
         frame_data = cls.get_frame()
         if (frame_data["current"] != cls.sent_frame or
@@ -97,11 +147,23 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         cls.ws.broadcast("sync/scene", animation_data)
 
     @classmethod
+    def on_selection_change(cls, scene, depsgraph):
+        """選択状態の変更を検出して通知"""
+        selection_data = cls.get_selection()
+
+        # 前回と同じ選択状態なら送信しない(最適化)
+        if selection_data != cls.sent_selection:
+            cls.ws.broadcast("sync/selection", selection_data)
+            cls.sent_selection = selection_data
+
+    @classmethod
     def on_connect(cls, client):
         frame_data = cls.get_frame()
         animation_data = cls.get_animation()
+        selection_data = cls.get_selection()
         cls.ws.send(client, "sync/timeline", frame_data)
         cls.ws.send(client, "sync/scene", animation_data)
+        cls.ws.send(client, "sync/selection", selection_data)
         
     def start(self):
         scene = bpy.context.scene
@@ -112,21 +174,27 @@ class BLIDGE_OT_Sync(bpy.types.Operator):
         bpy.app.handlers.animation_playback_pre.append(cls.on_start_playing)
         bpy.app.handlers.animation_playback_post.append(cls.on_stop_playing)
         bpy.app.handlers.save_post.append(cls.on_save)
+        bpy.app.handlers.depsgraph_update_post.append(cls.on_selection_change)
             
     def stop(self):
         cls = BLIDGE_OT_Sync
         cls.ws.stop_server()
         cls.running = False
-        
+
         try:
             bpy.app.handlers.frame_change_post.remove(cls.on_change_frame)
             bpy.app.handlers.animation_playback_pre.remove(cls.on_start_playing)
             bpy.app.handlers.animation_playback_post.remove(cls.on_stop_playing)
         except ValueError:
             pass
-        
+
         try:
             bpy.app.handlers.save_post.remove(cls.on_save)
+        except ValueError:
+            pass
+
+        try:
+            bpy.app.handlers.depsgraph_update_post.remove(cls.on_selection_change)
         except ValueError:
             pass
         
