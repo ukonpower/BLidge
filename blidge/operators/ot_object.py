@@ -2,6 +2,8 @@ import bpy
 from bpy.types import Operator
 import uuid
 
+from ..animation.fcurve_id import get_object_channelbag
+
 # --------------------
 #  Custom Property
 # --------------------
@@ -105,14 +107,15 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
             data_path = f'blidge.custom_property_list[{self.item_index}].value_bool'
         
         # 関連するF-Curveを削除
-        if obj.animation_data and obj.animation_data.action:
+        channelbag = get_object_channelbag(obj)
+        if channelbag:
             fcurves_to_remove = []
-            for fcurve in obj.animation_data.action.fcurves:
+            for fcurve in channelbag.fcurves:
                 if fcurve.data_path == data_path:
                     fcurves_to_remove.append(fcurve)
             
             for fcurve in fcurves_to_remove:
-                obj.animation_data.action.fcurves.remove(fcurve)
+                channelbag.fcurves.remove(fcurve)
         
         # 関連するfcurve_mappingsエントリを削除
         # (このカスタムプロパティのF-Curveに紐づくマッパーを削除)
@@ -120,8 +123,9 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
         fcurve_ids_to_remove = []
 
         # まず削除対象のF-Curve IDを特定
-        if obj.animation_data and obj.animation_data.action:
-            for fcurve in obj.animation_data.action.fcurves:
+        channelbag = get_object_channelbag(obj)
+        if channelbag:
+            for fcurve in channelbag.fcurves:
                 if fcurve.data_path == data_path:
                     fcurve_id = get_fcurve_id(fcurve, False)
                     fcurve_ids_to_remove.append(fcurve_id)
@@ -140,8 +144,9 @@ class BLIDGE_OT_RemoveCustomProperty(Operator):
         obj.blidge.custom_property_list.remove(self.item_index)
 
         # 削除したインデックス以降のF-Curveのdata_pathを更新
-        if obj.animation_data and obj.animation_data.action:
-            for fcurve in obj.animation_data.action.fcurves:
+        channelbag = get_object_channelbag(obj)
+        if channelbag:
+            for fcurve in channelbag.fcurves:
                 # カスタムプロパティのdata_pathかチェック
                 if fcurve.data_path.startswith('blidge.custom_property_list['):
                     # インデックスを抽出
@@ -349,8 +354,9 @@ class BLIDGE_OT_AddFCurveToAnimation(Operator):
             from ..animation.fcurve_id import get_fcurve_id
             
             # オブジェクトのアニメーションデータからF-Curveを探す
-            if obj.animation_data and obj.animation_data.action:
-                for fcurve in obj.animation_data.action.fcurves:
+            channelbag = get_object_channelbag(obj)
+            if channelbag:
+                for fcurve in channelbag.fcurves:
                     if fcurve.data_path == data_path:
                         fcurve_id = get_fcurve_id(fcurve, axis=True)
                         break

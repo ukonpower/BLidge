@@ -2,7 +2,7 @@
 
 from typing import Dict, Any, List, Optional
 import bpy
-from .fcurve_id import get_fcurve_id
+from .fcurve_id import get_fcurve_id, get_action_fcurves
 
 # 補間タイプのマッピング: L(Linear)=0, C(Constant)=1, B(Bezier)=2
 INTERPOLATION_MAP = {
@@ -240,7 +240,7 @@ class AnimationParser:
 
         # 1パス目: すべてのanimation_idを収集して辞書とリストを構築
         for action in bpy.data.actions:
-            for fcurve in action.fcurves:
+            for fcurve in get_action_fcurves(action):
                 fcurve_props = AnimationParser._get_fcurve_props(fcurve)
                 for fcurve_prop in fcurve_props:
                     if fcurve_prop.animation_id:
@@ -250,7 +250,7 @@ class AnimationParser:
 
         # 2パス目: F-Curveデータを処理し、共有リストとアニメーションへの参照を構築
         for action in bpy.data.actions:
-            for fcurve in action.fcurves:
+            for fcurve in get_action_fcurves(action):
                 AnimationParser._process_fcurve(fcurve, animation_dict, animation_list, fcurve_list, fcurve_dict)
 
         return {"list": animation_list, "dict": animation_dict, "fcurves": fcurve_list}

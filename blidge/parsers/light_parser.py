@@ -28,6 +28,7 @@ class LightParser:
                 'y': light.color[1],
                 'z': light.color[2],
             },
+            # OREngine の Light.intensity は Blender と同じ放射量の単位（Sun は W/m²、Spot は W）なので換算しない
             'intensity': light.energy
         }
 
@@ -36,7 +37,6 @@ class LightParser:
             param['type'] = 'directional'
         elif light.type == 'SPOT':
             param['type'] = 'spot'
-            param['intensity'] /= 500
             param.update({
                 'angle': light.spot_size,
                 'blend': light.spot_blend
